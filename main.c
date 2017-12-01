@@ -30,6 +30,21 @@ SerialConfig sConfig =
 	0
 };
 
+static PWMConfig pwmcfg = 
+{
+	10000,                                  /* 100 Khz PWM clock frequency.   */
+	100,                                    /* 100 period in ticks,thus 1 kHz sample freq.*/
+	NULL,									/* callback function*/
+	{										/* open all channels*/
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
+	},
+	0,
+	0
+};
+
 
 uint8_t calculateFCS(uint8_t *buffer, uint8_t count);
 uint8_t getData(uint8_t *buffer, uint8_t count);
@@ -66,6 +81,20 @@ int main(void)
 	
 	
 	sdStart(&SD2, NULL);
+	pwmStart(&PWMD1, &pwmcfg);
+	
+	
+	/*uint8_t i = 0;
+	while(!0)
+	{
+		pwmEnableChannel(&PWMD1, 3, i);
+		
+		palSetPad(GPIOC, 13);
+		chThdSleepMilliseconds(125);
+		palClearPad(GPIOC, 13);
+		chThdSleepMilliseconds(125);
+		i = (i + 10) % 100;
+	}*/
 
 	
 	/*chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO+1, Thread1, NULL);*/
@@ -112,6 +141,9 @@ int main(void)
 			/*rgb set */
 			prepareFrame(send_buffer, buffer, 4);
 			send_length = 4;
+			pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
+			pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
+			pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
 		}
 		else if(0x5 == buffer[0] && getData(buffer, 1))
 		{
