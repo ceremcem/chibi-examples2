@@ -126,9 +126,10 @@
  * PC10 - Push Pull output (CAN CNTRL).
  * PC11 - Push Pull output (USB DISC).
  * PC12 - Push Pull output (LED).
+ * PC13 - Push Pull output (LED).
  */
-#define VAL_GPIOCCRL            0x44848888      /*  PC7...PC0 */
-#define VAL_GPIOCCRH            0x88833388      /* PC15...PC8 */
+#define VAL_GPIOCCRL            0x44848882      /*  PC7...PC0 */
+#define VAL_GPIOCCRH            0x88333388      /* PC15...PC8 */
 #define VAL_GPIOCODR            0xFFFFFFFF
 
 /*

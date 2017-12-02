@@ -1,103 +1,5 @@
-/*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
-
-#include "ch.h"
-#include "hal.h"
-
-#define BUFFER_LENGTH 16
-
-
-uint8_t calculateFCS(uint8_t *buffer, uint8_t count);
-uint8_t getData(uint8_t *buffer, uint8_t count);
-void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length);
-//static void timerCallback(void *arg);
-static void timerCallback(GPTDriver *gptp);
-void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
-
-
-SerialConfig sConfig = 
-{
-	115200,
-	0,
-	USART_CR2_CLKEN | USART_CR2_STOP1_BITS | USART_CR2_LINEN,
-	0
-};
-
-static PWMConfig pwmcfg = 
-{
-	10000,                                  /* 100 Khz PWM clock frequency.   */
-	100,                                    /* 100 period in ticks,thus 1 kHz sample freq.*/
-	NULL,									/* callback function*/
-	{										/* open all channels*/
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
-	},
-	0,
-	0
-};
-
-// Create buffer to store ADC results. This is
-// one-dimensional interleaved array
-#define ADC_BUF_DEPTH 1 // We only read one by one
-#define ADC_CH_NUM 4    // How many channel you use at same time
-static adcsample_t samples_buf[ADC_BUF_DEPTH * ADC_CH_NUM]; // results array
-
-/*dummy configure for adc*/
-static const ADCConfig adccfg = {.dummy = 0};
-
-static const ADCConversionGroup adccg = {
-   // this 3 fields are common for all MCUs
-      // set to TRUE if need circular buffer, set FALSE otherwise
-      circular : FALSE,
-      // number of channels
-      num_channels : ADC_CH_NUM,
-      // callback function when conversion ends
-      end_cb : adcReadCallback,
-      //callback function when error appears
-      error_cb : NULL,
-      //look to datasheet for information about the registers
-      // CR1 register content
-      cr1 : 0,
-      // CR2 register content
-      cr2 : ADC_CR2_SWSTART | ADC_CR2_EXTTRIG | (7 << 17),//means single conversion mode
-      // SMRP1 register content
-      smpr1 : 0,
-      // SMRP2 register content
-      smpr2 : ((0b111)<<12)|((0b111)<<15)| ((0b111)<<18)|((0b111)<<21), /* sampling time */
-      // SQR1 register content
-      sqr1 : ((ADC_CH_NUM - 1) << 20),
-      // SQR2 register content
-      sqr2 : 0,
-      // SQR3 register content. We must select 1 channel
-      // For example 6th channel
-      // if we want to select more than 1 channel then simply
-      // shift and logic or the values example (ch 15 & ch 10) : (15 | (10 << 5))
-      sqr3 : 4 | (5 << 5) | (6 << 10) | (7 << 15) /*register channels*/
-};
-
-static const GPTConfig timer_config = {
-  frequency:    80000U,
-  callback:     timerCallback,
-  cr2:          0,
-  dier:         0U
-};
-
+#include "main.h"
 
 static uint8_t temp_thr;
 static int8_t last_temp_val;
@@ -110,103 +12,156 @@ int main(void)
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
 	uint8_t send_length;
+	temp_thr = 40; /*set 40 Celcius as default*/
 	
-	/* USART 2
-	 * A2 - TX
-	 * A3 - RX*/
-	/*done in board.h why not here..*/
-	/*palSetPadMode(GPIOA, 2, 0xB);*/
-	/*palSetPadMode(GPIOA, 3, 0x8);*/
-	
-	
-	/*Pin of built in led*/
-	palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_PUSHPULL);
-	temp_thr = 40; /*40 Celcius as default*/
-	
+	/*pin configurations are done in board.h*/
 	sdStart(&SD2, NULL);
 	pwmStart(&PWMD1, &pwmcfg);
 	adcStart(&ADCD1, &adccfg);
 	gptStart(&GPTD3, &timer_config);
 	
-	pwmEnableChannel(&PWMD1, 3, 50);
-	gptStartContinuous(&GPTD3, 40000);
+	chThdSleepMilliseconds(2000);
 	
-	
+	/*Main task loop*/
 	while(!0)
 	{
-		sdRead(&SD2, buffer, 1);
-		if(0x1 == buffer[0] && getData(buffer, 3))
-		{
-			/*output set */
-			send_length = 4;
-			prepareFrame(send_buffer, buffer, 3);
-			uint16_t output_data = (buffer[1] << 8) | buffer[2];
-			/*for debug*/
-			if(0xFFFF == output_data)
-				palSetPad(GPIOC, 13);
-			else
-				palClearPad(GPIOC, 13);
-				
-			//palWritePort(GPIOB, output_data);
-			GPIOB->ODR = output_data;
-		}
-		else if(0x2 == buffer[0] && getData(buffer, 1))
-		{
-			/*output get */
-			send_length = 4;
-			prepareFrame(send_buffer, buffer, 1);
-			uint16_t data_on_output;
-			data_on_output = GPIOB->ODR & 0x0000FFFF;
-			send_buffer[2] = (data_on_output & 0xFF00) >> 8;
-			send_buffer[3] = data_on_output & 0x00FF;
-		}
-		else if(0x3 == buffer[0] && getData(buffer, 1))
-		{
-			/*input get */
-			prepareFrame(send_buffer, buffer, 2);
-			send_length = 3;
-			uint8_t input_data= GPIOA->IDR & 0x0003;
-			send_buffer[2] = input_data;
-		}
-		else if(0x4 == buffer[0] && getData(buffer, 4))
-		{
-			/*rgb set */
-			prepareFrame(send_buffer, buffer, 4);
-			send_length = 4;
-			pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
-			pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
-			pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
-		}
-		else if(0x5 == buffer[0] && getData(buffer, 1))
-		{
-			/*therm get */
-			prepareFrame(send_buffer, buffer, 1);
-			send_length = 1;
-		}
-		else if(0x6 == buffer[0] && getData(buffer, 2))
-		{
-			/*motor val set*/
-			prepareFrame(send_buffer, buffer, 2);
-			send_length = 2;
-			temp_thr = buffer[1];
-		}
-		else 
-		{
-			/*invalid frame*/
-			continue;
-		}
+		startMainboard();
 		
-		send_buffer[send_length] = calculateFCS(send_buffer, send_length);
-		send_length++;/*crc added to end*/
-		sdWrite(&SD2, send_buffer, send_length);
+		/*start doing own job*/
+		gptStartContinuous(&GPTD3, 40000);
+		
+		/* expect a message in 60 seconds otherwise reset the board */
+		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
+		{
+			if(0x1 == buffer[0] && getData(buffer, 3))
+			{
+				/* output set */
+				send_length = 4;
+				prepareFrame(send_buffer, buffer, 3);
+				uint16_t output_data = (buffer[1] << 8) | buffer[2];
+				/*for debug*/
+				if(0xFFFF == output_data)
+					palSetPad(GPIOC, 13);
+				else
+					palClearPad(GPIOC, 13);
+					
+				//palWritePort(GPIOB, output_data);
+				GPIOB->ODR = output_data;
+			}
+			else if(0x2 == buffer[0] && getData(buffer, 1))
+			{
+				/*output get */
+				send_length = 4;
+				prepareFrame(send_buffer, buffer, 1);
+				uint16_t data_on_output;
+				data_on_output = GPIOB->ODR & 0x0000FFFF;
+				send_buffer[2] = (data_on_output & 0xFF00) >> 8;
+				send_buffer[3] = data_on_output & 0x00FF;
+			}
+			else if(0x3 == buffer[0] && getData(buffer, 1))
+			{
+				/*input get */
+				prepareFrame(send_buffer, buffer, 2);
+				send_length = 3;
+				uint8_t input_data= GPIOA->IDR & 0x0003;
+				send_buffer[2] = input_data;
+			}
+			else if(0x4 == buffer[0] && getData(buffer, 4))
+			{
+				/*rgb set */
+				prepareFrame(send_buffer, buffer, 4);
+				send_length = 4;
+				pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
+				pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
+				pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
+			}
+			else if(0x5 == buffer[0] && getData(buffer, 1))
+			{
+				/*therm get */
+				prepareFrame(send_buffer, buffer, 1);
+				send_length = 1;
+			}
+			else if(0x6 == buffer[0] && getData(buffer, 2))
+			{
+				/*motor val set*/
+				prepareFrame(send_buffer, buffer, 2);
+				send_length = 2;
+				temp_thr = buffer[1];
+			}
+			else 
+			{
+				/* invalid frame */
+				continue;
+			}
+			
+			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
+			send_length++;/*crc added to end*/
+			sdWrite(&SD2, send_buffer, send_length);
+		}
+		gptStopTimer(&GPTD3);
 	}
+}
+
+
+void startMainboard(void)
+{	
+	uint8_t data_buffer;
+	const uint8_t wakeup_message[8] = {0xca,0xfe,0xba,0xbe,0xde,0xad,0xbe,0xef};
+	uint8_t counter = 0;
+	uint8_t mainboard_ready;
+	uint32_t start_time;
+	do
+	{
+		palSetPad(GPIOC, 13);
+		chThdSleepMilliseconds(100);
+		palClearPad(GPIOC, 13);
+		chThdSleepMilliseconds(100);
+		start_time = chVTGetSystemTimeX();
+		mainboard_ready = 0;
+		/*main wake-up algorithm*/
+		
+		/* Use pc0 to open mainboard
+		 * it's configured as push-pull in board.h */
+		 
+		palClearPad(GPIOC, 0);
+		chThdSleepMilliseconds(200);
+		palSetPad(GPIOC, 0);
+		chThdSleepMilliseconds(200);
+		palClearPad(GPIOC, 0);
+		
+		/*expect wake up signal in 15 seconds*/
+		while(chVTGetSystemTimeX() - start_time < S2ST(15))
+		{
+			sdReadTimeout(&SD2, &data_buffer, 1, 100);
+			if(data_buffer == wakeup_message[counter])
+			{
+				counter++;
+				if(counter == 8)
+				{
+					mainboard_ready = 1;
+					break;
+				}
+			}
+			else if(data_buffer == wakeup_message[0])
+			{
+				counter = 1;
+			}
+			else
+			{
+				counter = 0;
+			}
+		}
+	}while(0 == mainboard_ready);
+	
+	/* send deadbeefcafebabe */
+	sdWrite(&SD2, wakeup_message + 4, 4);
+	sdWrite(&SD2, wakeup_message, 4);
 }
 
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) adcp;
 	(void) n;
-    sdAsynchronousWrite(&SD2, (uint8_t *)buffer, 8);
 }
 
 static void timerCallback(GPTDriver *gptp)

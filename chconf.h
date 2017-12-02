@@ -42,6 +42,8 @@
  * @brief   System time counter resolution.
  * @note    Allowed values are 16 or 32 bits.
  */
+/* In stm32f103c8t6 all timers are 16 bit */
+
 #define CH_CFG_ST_RESOLUTION                16
 
 /**
