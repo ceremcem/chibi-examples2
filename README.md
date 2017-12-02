@@ -1,3 +1,63 @@
+BOARD INFO:
+------
+  Pinout:
+  A0:input1
+  A1:input2
+  A2:TX
+  A3:RX
+  A4..A7:ADCIN
+  A8..A10:RGB led outputs
+  A11:Motor output
+  
+  B0-B15: output pins
+  
+  C0: motherboard control pin
+	implementing
+
+MESSAGE PROTOCOL:
+------
+	Set output pins:
+		Send: 		0x01 <2 byte pin states> CRC
+		Expect: 	0x55 0x01 <2 byte pin states> CRC
+	
+	Get output pins:
+		Send: 		0x02 CRC
+		Expect: 	0x55 0x02 <2 byte pin states> CRC
+	
+	Get input:
+		Implemented incorrectly for now.
+	
+	Set RGB:
+		R,G,B values are 1 byte each.
+		Send:		0x04 R G B CRC
+		Expect:		0x55 0x4 R G B CRC
+	
+	Get temperature:
+		Send:		0x05 CRC
+		Expect:		Not implemented
+		
+	Set motor threshold value:
+		Send:		0x6 <1 byte, new value> CRC
+		Expect:		0x55 0x6 <new value> CRC
+
+
+SAMPLE MESSAGES:
+------
+	all messages in hex format
+	
+	Send 		0202
+	expect 		05 <pin states> CRC
+	
+	clear all pins
+	Send 		01000001
+	expect		5501000054
+	
+	set all pins
+	Send 		01FFFF01
+	expect		5501FFFF54
+	
+	
+
 USAGE:
 ------
 
