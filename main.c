@@ -19,6 +19,10 @@ int main(void)
 	pwmStart(&PWMD1, &pwmcfg);
 	adcStart(&ADCD1, &adccfg);
 	gptStart(&GPTD3, &timer_config);
+
+	/*Not tested*/
+	palSetPadCallbackI(GPIOA, 0, buttonEvent, (uint8_t *)0);
+	palSetPadCallbackI(GPIOA, 1, buttonEvent, (uint8_t *)1);
 	
 	chThdSleepMilliseconds(2000);
 	
@@ -29,6 +33,8 @@ int main(void)
 		
 		/*start doing own job*/
 		gptStartContinuous(&GPTD3, 40000);
+		palEnablePadEvent(GPIOA, 0, PAL_EVENT_MODE_RISING_EDGE);//, buttonEvent, 0);
+		palEnablePadEvent(GPIOA, 1, PAL_EVENT_MODE_RISING_EDGE);//, buttonEvent, 1);
 		
 		/* expect a message in 60 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
@@ -99,9 +105,20 @@ int main(void)
 			sdWrite(&SD2, send_buffer, send_length);
 		}
 		gptStopTimer(&GPTD3);
+		
 	}
 }
 
+/* Not tested */
+static void buttonEvent(void *arg) 
+{
+	uint8_t pad = (uint8_t)arg;
+	uint8_t message[] = {0x03, 0, 0};
+	message[1] = pad;
+	message[2] = calculateFCS(message,2);
+	sdAsynchronousWrite(&SD2, message, 3);
+	chThdSleepS(MS2ST(100));
+}
 
 void startMainboard(void)
 {	
@@ -112,11 +129,6 @@ void startMainboard(void)
 	uint32_t start_time;
 	do
 	{
-		palSetPad(GPIOC, 13);
-		chThdSleepMilliseconds(100);
-		palClearPad(GPIOC, 13);
-		chThdSleepMilliseconds(100);
-		start_time = chVTGetSystemTimeX();
 		mainboard_ready = 0;
 		/*main wake-up algorithm*/
 		
@@ -129,6 +141,7 @@ void startMainboard(void)
 		chThdSleepMilliseconds(200);
 		palClearPad(GPIOC, 0);
 		
+		start_time = chVTGetSystemTimeX();
 		/*expect wake up signal in 15 seconds*/
 		while(chVTGetSystemTimeX() - start_time < S2ST(15))
 		{
@@ -162,6 +175,7 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) adcp;
 	(void) n;
+	(void) buffer;
 }
 
 static void timerCallback(GPTDriver *gptp)

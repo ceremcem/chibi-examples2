@@ -1,18 +1,30 @@
 BOARD INFO:
 ------
-  Pinout:
-  A0:input1
-  A1:input2
-  A2:TX
-  A3:RX
-  A4..A7:ADCIN
-  A8..A10:RGB led outputs
-  A11:Motor output
-  
-  B0-B15: output pins
-  
-  C0: motherboard control pin
-	implementing
+	Pinout:
+		A0:input1
+		A1:input2
+		A2:TX
+		A3:RX
+		A4..A7:ADCIN
+		A8..A10:RGB led outputs
+		A11:Motor output
+
+		B0-B15: output pins
+
+		C0: motherboard control pin
+
+STARTUP:
+------
+	At power on mcu waits for 2 seconds
+	sets C0 to 0
+	waits 200 ms
+	sets C0 to 1
+	waits 200 ms
+	sets C0 to 0
+	
+	after this sequence mcu expect to receive 0x(cafebabedeadbeef) if this message received then mcu sends 0x(deadbeefcafebabe) back
+		otherwise power on sequence is repeated
+	
 
 MESSAGE PROTOCOL:
 ------
@@ -23,9 +35,6 @@ MESSAGE PROTOCOL:
 	Get output pins:
 		Send: 		0x02 CRC
 		Expect: 	0x55 0x02 <2 byte pin states> CRC
-	
-	Get input:
-		Implemented incorrectly for now.
 	
 	Set RGB:
 		R,G,B values are 1 byte each.
@@ -40,6 +49,9 @@ MESSAGE PROTOCOL:
 		Send:		0x6 <1 byte, new value> CRC
 		Expect:		0x55 0x6 <new value> CRC
 
+	!!NOT TESTED!!
+	If input event occurs 0x1 <1 byte, pin no> CRC is sent by mcu. 
+		
 
 SAMPLE MESSAGES:
 ------

@@ -19,6 +19,7 @@
 
 /* Macro definitions */
 #define S2ST(sec) ((systime_t)((uint32_t)(sec) * (uint32_t)CH_CFG_ST_FREQUENCY))
+#define MS2ST(msec) ((systime_t)(((((uint32_t)(msec)) * ((uint32_t)CH_CFG_ST_FREQUENCY)) + 999UL) / 1000UL))
 
 #define ADC_BUF_DEPTH 1 // We only read one by one
 #define ADC_CH_NUM 4    // How many channel you use at same time
@@ -29,6 +30,7 @@ uint8_t getData(uint8_t *buffer, uint8_t count);
 void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length);
 static void timerCallback(GPTDriver *gptp);
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
+static void buttonEvent(void *arg);
 void startMainboard(void);
 
 
