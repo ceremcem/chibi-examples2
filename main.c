@@ -4,6 +4,31 @@
 static uint8_t temp_thr;
 static int8_t last_temp_val;
 
+#define STM32_DISABLE_EXTI0_HANDLER
+OSAL_IRQ_HANDLER(Vector58)
+{
+	OSAL_IRQ_PROLOGUE();
+  
+	buttonEvent(0);
+	/* Tell you read the interrupt*/
+	EXTI->PR |= 0x00000001U;
+  
+	OSAL_IRQ_EPILOGUE();
+}
+
+#define STM32_DISABLE_EXTI1_HANDLER
+OSAL_IRQ_HANDLER(Vector5C) 
+{
+  
+	OSAL_IRQ_PROLOGUE();
+
+	buttonEvent(1);
+	/* Tell you read the interrupt*/
+	EXTI->PR |= 0x00000002U;
+	 
+	OSAL_IRQ_EPILOGUE();
+}
+
 int main(void)
 {
 	halInit();
@@ -19,11 +44,17 @@ int main(void)
 	pwmStart(&PWMD1, &pwmcfg);
 	adcStart(&ADCD1, &adccfg);
 	gptStart(&GPTD3, &timer_config);
-
-	/*Not tested*/
-	palSetPadCallbackI(GPIOA, 0, buttonEvent, (uint8_t *)0);
-	palSetPadCallbackI(GPIOA, 1, buttonEvent, (uint8_t *)1);
 	
+	nvicDisableVector(EXTI0_IRQn);
+	nvicDisableVector(EXTI1_IRQn);	
+	/*Not tested*/
+	//AFIO->EXTICR[0] &= 0xFFFFFF00; /*set a0 and a1 to external interrupt*/
+	EXTI->IMR |= 0x00000003;	 /*set them as interrupt*/
+	EXTI->EMR &= ~(0x00000003);  /*not event*/
+	EXTI->RTSR |= 0x00000003;    /* Rising edge enable */
+	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
+	
+	/*initial wait*/
 	chThdSleepMilliseconds(2000);
 	
 	/*Main task loop*/
@@ -31,10 +62,12 @@ int main(void)
 	{
 		startMainboard();
 		
+		/*enable input interrupts*/
+		nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
+		nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
+		
 		/*start doing own job*/
 		gptStartContinuous(&GPTD3, 40000);
-		palEnablePadEvent(GPIOA, 0, PAL_EVENT_MODE_RISING_EDGE);//, buttonEvent, 0);
-		palEnablePadEvent(GPIOA, 1, PAL_EVENT_MODE_RISING_EDGE);//, buttonEvent, 1);
 		
 		/* expect a message in 60 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
@@ -104,20 +137,23 @@ int main(void)
 			send_length++;/*crc added to end*/
 			sdWrite(&SD2, send_buffer, send_length);
 		}
+		
+		/*stop pwm*/
 		gptStopTimer(&GPTD3);
+		/*disable inputs*/
+		nvicDisableVector(EXTI0_IRQn);
+		nvicDisableVector(EXTI1_IRQn);
 		
 	}
 }
 
 /* Not tested */
-static void buttonEvent(void *arg) 
+static void buttonEvent(uint8_t pad) 
 {
-	uint8_t pad = (uint8_t)arg;
 	uint8_t message[] = {0x03, 0, 0};
 	message[1] = pad;
 	message[2] = calculateFCS(message,2);
 	sdAsynchronousWrite(&SD2, message, 3);
-	chThdSleepS(MS2ST(100));
 }
 
 void startMainboard(void)

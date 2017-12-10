@@ -49,8 +49,7 @@ MESSAGE PROTOCOL:
 		Send:		0x6 <1 byte, new value> CRC
 		Expect:		0x55 0x6 <new value> CRC
 
-	!!NOT TESTED!!
-	If input event occurs 0x1 <1 byte, pin no> CRC is sent by mcu. 
+	If input event occurs 0x3 <1 byte, pin no> CRC is sent by mcu. 
 		
 
 SAMPLE MESSAGES:

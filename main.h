@@ -30,7 +30,7 @@ uint8_t getData(uint8_t *buffer, uint8_t count);
 void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length);
 static void timerCallback(GPTDriver *gptp);
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
-static void buttonEvent(void *arg);
+static void buttonEvent(uint8_t pad);
 void startMainboard(void);
 
 
