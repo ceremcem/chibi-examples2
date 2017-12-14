@@ -1,3 +1,8 @@
+Fetching
+--------------------
+
+    git clone --recurse https://aktos.io/git/efecanicoz/io-expander2
+
 Flashing and debugging
 ---------------------
 
