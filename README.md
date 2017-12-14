@@ -8,10 +8,10 @@ Flashing and debugging
 
 Basic instructions:
 
-    1. Flashing                    : `make write`
-    2. Debugging:
-        1. Start a session         : `make create-session`
-        2. Start your debugger     : `make debug-cmd` (or `make debug-gui-...`)
+1. Flashing                    : `make write`
+2. Debugging:
+    1. Start a session         : `make create-debug-session`
+    2. Start your debugger     : `make debug-cmd` (or `make debug-gui-...`)
 
 For further instructions, see mcu-debug/README.md
 
@@ -29,9 +29,9 @@ BOARD INFO:
 		B0-B15: output pins
 
 		C0: motherboard control pin
-        
-        
-COMMUNICATION SETTINGS: 
+
+
+COMMUNICATION SETTINGS:
 --------------
 
 Serial Port Settings: 38400baud, 8N1
