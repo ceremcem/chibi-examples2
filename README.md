@@ -51,28 +51,33 @@ STARTUP:
 
 MESSAGE PROTOCOL:
 ------
-	Set output pins:
+
+### Request/Response
+
+	`01`: Set output pins:
 		Send: 		0x01 <2 byte pin states> CRC
 		Expect: 	0x55 0x01 <2 byte pin states> CRC
 
-	Get output pins:
+	`02`: Get output pins:
 		Send: 		0x02 CRC
 		Expect: 	0x55 0x02 <2 byte pin states> CRC
 
-	Set RGB:
+	`04`: Set RGB:
 		R,G,B values are 1 byte each.
 		Send:		0x04 R G B CRC
 		Expect:		0x55 0x4 R G B CRC
 
-	Get temperature:
+	`05`: Get temperature:
 		Send:		0x05 CRC
 		Expect:		Not implemented
 
-	Set motor threshold value:
+	`06`: Set motor threshold value:
 		Send:		0x6 <1 byte, new value> CRC
 		Expect:		0x55 0x6 <new value> CRC
 
-	If input event occurs 0x3 <1 byte, pin no> CRC is sent by mcu.
+### Events
+
+	`03`: If input event occurs 0x3 <1 byte, pin no> CRC is sent by mcu.
 
 
 SAMPLE MESSAGES:
