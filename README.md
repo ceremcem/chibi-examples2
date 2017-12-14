@@ -29,6 +29,12 @@ BOARD INFO:
 		B0-B15: output pins
 
 		C0: motherboard control pin
+        
+        
+COMMUNICATION SETTINGS: 
+--------------
+
+Serial Port Settings: 38400baud, 8N1
 
 STARTUP:
 ------
