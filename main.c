@@ -8,24 +8,24 @@ static int8_t last_temp_val;
 OSAL_IRQ_HANDLER(Vector58)
 {
 	OSAL_IRQ_PROLOGUE();
-  
+
 	buttonEvent(0);
 	/* Tell you read the interrupt*/
 	EXTI->PR |= 0x00000001U;
-  
+
 	OSAL_IRQ_EPILOGUE();
 }
 
 #define STM32_DISABLE_EXTI1_HANDLER
-OSAL_IRQ_HANDLER(Vector5C) 
+OSAL_IRQ_HANDLER(Vector5C)
 {
-  
+
 	OSAL_IRQ_PROLOGUE();
 
 	buttonEvent(1);
 	/* Tell you read the interrupt*/
 	EXTI->PR |= 0x00000002U;
-	 
+
 	OSAL_IRQ_EPILOGUE();
 }
 
@@ -33,42 +33,43 @@ int main(void)
 {
 	halInit();
 	chSysInit();
-	
+
+
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
 	uint8_t send_length;
 	temp_thr = 40; /*set 40 Celcius as default*/
-	
+
 	/*pin configurations are done in board.h*/
 	sdStart(&SD2, NULL);
 	pwmStart(&PWMD1, &pwmcfg);
 	adcStart(&ADCD1, &adccfg);
 	gptStart(&GPTD3, &timer_config);
-	
+
 	nvicDisableVector(EXTI0_IRQn);
-	nvicDisableVector(EXTI1_IRQn);	
+	nvicDisableVector(EXTI1_IRQn);
 	/*Not tested*/
 	//AFIO->EXTICR[0] &= 0xFFFFFF00; /*set a0 and a1 to external interrupt*/
 	EXTI->IMR |= 0x00000003;	 /*set them as interrupt*/
 	EXTI->EMR &= ~(0x00000003);  /*not event*/
 	EXTI->RTSR |= 0x00000003;    /* Rising edge enable */
 	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
-	
+
 	/*initial wait*/
 	chThdSleepMilliseconds(2000);
-	
+
 	/*Main task loop*/
 	while(!0)
 	{
-		startMainboard();
-		
+		//startMainboard();
+
 		/*enable input interrupts*/
 		nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
 		nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
-		
+
 		/*start doing own job*/
 		gptStartContinuous(&GPTD3, 40000);
-		
+
 		/* expect a message in 60 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
@@ -83,7 +84,7 @@ int main(void)
 					palSetPad(GPIOC, 13);
 				else
 					palClearPad(GPIOC, 13);
-					
+
 				//palWritePort(GPIOB, output_data);
 				GPIOB->ODR = output_data;
 			}
@@ -127,28 +128,28 @@ int main(void)
 				send_length = 2;
 				temp_thr = buffer[1];
 			}
-			else 
+			else
 			{
 				/* invalid frame */
 				continue;
 			}
-			
+
 			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
 			send_length++;/*crc added to end*/
 			sdWrite(&SD2, send_buffer, send_length);
 		}
-		
+
 		/*stop pwm*/
 		gptStopTimer(&GPTD3);
 		/*disable inputs*/
 		nvicDisableVector(EXTI0_IRQn);
 		nvicDisableVector(EXTI1_IRQn);
-		
+
 	}
 }
 
 /* Not tested */
-static void buttonEvent(uint8_t pad) 
+static void buttonEvent(uint8_t pad)
 {
 	uint8_t message[] = {0x03, 0, 0};
 	message[1] = pad;
@@ -157,7 +158,7 @@ static void buttonEvent(uint8_t pad)
 }
 
 void startMainboard(void)
-{	
+{
 	uint8_t data_buffer;
 	const uint8_t wakeup_message[8] = {0xca,0xfe,0xba,0xbe,0xde,0xad,0xbe,0xef};
 	uint8_t counter = 0;
@@ -167,16 +168,16 @@ void startMainboard(void)
 	{
 		mainboard_ready = 0;
 		/*main wake-up algorithm*/
-		
+
 		/* Use pc0 to open mainboard
 		 * it's configured as push-pull in board.h */
-		 
+
 		palClearPad(GPIOC, 0);
 		chThdSleepMilliseconds(200);
 		palSetPad(GPIOC, 0);
 		chThdSleepMilliseconds(200);
 		palClearPad(GPIOC, 0);
-		
+
 		start_time = chVTGetSystemTimeX();
 		/*expect wake up signal in 15 seconds*/
 		while(chVTGetSystemTimeX() - start_time < S2ST(15))
@@ -201,7 +202,7 @@ void startMainboard(void)
 			}
 		}
 	}while(0 == mainboard_ready);
-	
+
 	/* send deadbeefcafebabe */
 	sdWrite(&SD2, wakeup_message + 4, 4);
 	sdWrite(&SD2, wakeup_message, 4);
