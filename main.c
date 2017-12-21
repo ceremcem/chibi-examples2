@@ -2,7 +2,7 @@
 #include "main.h"
 
 static uint8_t temp_thr;
-static int8_t last_temp_val;
+//static int8_t last_temp_val;
 
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -128,6 +128,12 @@ int main(void)
 				send_length = 2;
 				temp_thr = buffer[1];
 			}
+            else if(0x7 == buffer[0] && getData(buffer, 3))
+            {
+                prepareFrame(send_buffer, buffer, 2);
+                int manual_speed = buffer[2];
+				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
+            }
 			else
 			{
 				/* invalid frame */
@@ -236,6 +242,12 @@ uint8_t getData(uint8_t *buffer, uint8_t count)
 {
 	sdRead(&SD2, &(buffer[1]), count);
 	uint8_t crc = calculateFCS(buffer, count);
+
+
+    /******** FIXME: returning immediately only for debugging purposes ****/
+    return true;
+
+
 	return (crc == buffer[count]);
 }
 
