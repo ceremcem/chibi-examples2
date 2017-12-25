@@ -1,5 +1,6 @@
 build/
 .dep/
+breakpoints.txt
 
 core
 *.gch
