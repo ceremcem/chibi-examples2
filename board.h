@@ -103,7 +103,7 @@
  * Port A setup.
  */
 #define VAL_GPIOACRL            0x00008B44      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x8884BBBB      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x8882BBBB      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
 /*
