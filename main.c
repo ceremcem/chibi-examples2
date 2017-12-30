@@ -7,6 +7,7 @@ static uint8_t temp_thr;
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
 {
+    // Vector58 : event for first bit of a port, see chibios
 	OSAL_IRQ_PROLOGUE();
 
 	buttonEvent(0);
@@ -19,6 +20,7 @@ OSAL_IRQ_HANDLER(Vector58)
 #define STM32_DISABLE_EXTI1_HANDLER
 OSAL_IRQ_HANDLER(Vector5C)
 {
+    // Vector5C: event for second bit of a port, see chibios
 
 	OSAL_IRQ_PROLOGUE();
 
@@ -53,7 +55,7 @@ int main(void)
 	EXTI->IMR |= 0x00000003;	 /*set them as interrupt*/
 	EXTI->EMR &= ~(0x00000003);  /*not event*/
 	EXTI->RTSR |= 0x00000003;    /* Rising edge enable */
-	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
+	EXTI->FTSR |= (0x00000003); /* Falling edge enable */
 
 
     //// debugger
@@ -162,10 +164,11 @@ int main(void)
 /* Not tested */
 static void buttonEvent(uint8_t pad)
 {
-	uint8_t message[] = {0x03, 0, 0};
+	uint8_t message[] = {0x03, 0, 0, 0};
 	message[1] = pad;
-	message[2] = calculateFCS(message,2);
-	sdAsynchronousWrite(&SD2, message, 3);
+    message[2] = (uint8_t) palReadPad(GPIOA, pad);
+	message[3] = calculateFCS(message,3);
+	sdAsynchronousWrite(&SD2, message, 4);
 }
 
 void startMainboard(void)
