@@ -56,7 +56,7 @@ int main(void)
 	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
 
 	/*initial wait*/
-    // debugger 
+    //// debugger
     palSetPad(GPIOD, 1);
 	chThdSleepMilliseconds(2000);
     palClearPad(GPIOD, 1);
@@ -84,14 +84,12 @@ int main(void)
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 3);
 				uint16_t output_data = (buffer[1] << 8) | buffer[2];
-				/*for debug*/
-				if(0xFFFF == output_data)
-					palSetPad(GPIOC, 13);
-				else
-					palClearPad(GPIOC, 13);
-
-				//palWritePort(GPIOB, output_data);
 				GPIOB->ODR = output_data;
+
+                // debugger
+                palSetPad(GPIOA, 12);
+                chThdSleepMilliseconds(2000);
+                palClearPad(GPIOA, 12);
 			}
 			else if(0x2 == buffer[0] && getData(buffer, 1))
 			{
