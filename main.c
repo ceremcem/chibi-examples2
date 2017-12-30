@@ -55,13 +55,15 @@ int main(void)
 	EXTI->RTSR |= 0x00000003;    /* Rising edge enable */
 	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
 
-	/*initial wait*/
+
     //// debugger
     palSetPad(GPIOD, 1);
-	chThdSleepMilliseconds(2000);
+	chThdSleepMilliseconds(500);
     palClearPad(GPIOD, 1);
-	chThdSleepMilliseconds(2000);
+	chThdSleepMilliseconds(200);
     palSetPad(GPIOD, 1);
+
+
 
 	/*Main task loop*/
 	while(!0)
