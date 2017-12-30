@@ -32,6 +32,9 @@ const PALConfig pal_default_config =
 };
 #endif
 
+
+
+
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
@@ -61,4 +64,7 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
+    // remapping PD0 and PD1
+    // debugger 
+    AFIO->MAPR |= (1u << 15);
 }

@@ -135,7 +135,8 @@
  * PD0  - Normal input (XTAL).
  * PD1  - Normal input (XTAL).
  */
-#define VAL_GPIODCRL            0x88888844      /*  PD7...PD0 */
+#define VAL_GPIODCRL            0x88888833      /*  PD7...PD0 */
+// WARNING: PD0 and PD1 is remapped to be used as outputs, see board.c
 #define VAL_GPIODCRH            0x88888888      /* PD15...PD8 */
 #define VAL_GPIODODR            0xFFFFFFFF
 

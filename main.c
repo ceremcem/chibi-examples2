@@ -56,7 +56,12 @@ int main(void)
 	EXTI->FTSR &= ~(0x00000003); /* Falling edge disable */
 
 	/*initial wait*/
+    // debugger 
+    palSetPad(GPIOD, 1);
 	chThdSleepMilliseconds(2000);
+    palClearPad(GPIOD, 1);
+	chThdSleepMilliseconds(2000);
+    palSetPad(GPIOD, 1);
 
 	/*Main task loop*/
 	while(!0)
