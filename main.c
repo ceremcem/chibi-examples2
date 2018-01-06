@@ -66,6 +66,9 @@ int main(void)
     palSetPad(GPIOD, 1);
 
 
+    // initial motor speed
+	pwmEnableChannel(&PWMD1, 3, 50);/* motor out */
+
 
 	/*Main task loop*/
 	while(!0)
@@ -87,13 +90,17 @@ int main(void)
 				/* output set */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 3);
-				uint16_t output_data = (buffer[1] << 8) | buffer[2];
-				GPIOB->ODR = output_data;
+				uint32_t output_data = (buffer[1] << 8) | buffer[2];
 
                 // debugger
-                palSetPad(GPIOA, 12);
-                chThdSleepMilliseconds(2000);
-                palClearPad(GPIOA, 12);
+				GPIOB->ODR = output_data;
+                int a12 = output_data & (1 << 8);
+                if(a12 != 0){
+                    palSetPad(GPIOA, 12);
+                }
+                else {
+                    palClearPad(GPIOA, 12);
+                }
 			}
 			else if(0x2 == buffer[0] && getData(buffer, 1))
 			{
@@ -101,9 +108,9 @@ int main(void)
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 1);
 				uint16_t data_on_output;
-				data_on_output = GPIOB->ODR & 0x0000FFFF;
-				send_buffer[2] = (data_on_output & 0xFF00) >> 8;
-				send_buffer[3] = data_on_output & 0x00FF;
+				data_on_output = (uint16_t) GPIOB->ODR;
+				send_buffer[2] = (uint8_t) ((data_on_output & 0xFF00) >> 8);
+				send_buffer[3] = (uint8_t) data_on_output & 0x00FF;
 			}
 			else if(0x3 == buffer[0] && getData(buffer, 1))
 			{
@@ -248,12 +255,13 @@ void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length)
 
 uint8_t getData(uint8_t *buffer, uint8_t count)
 {
+    // TODO: use timeout read
 	sdRead(&SD2, &(buffer[1]), count);
 	uint8_t crc = calculateFCS(buffer, count);
 
 
     /******** FIXME: returning immediately only for debugging purposes ****/
-    return true;
+    //return true;
 
 
 	return (crc == buffer[count]);
