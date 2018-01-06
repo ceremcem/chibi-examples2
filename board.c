@@ -66,6 +66,8 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 void boardInit(void) {
     //// debugger
     // remap pd1, disable jtag in order to use pb3,
-    // see RM0008, AFIO_MAPR section 
-    AFIO->MAPR = AFIO_MAPR_PD01_REMAP | AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
+    // see RM0008, AFIO_MAPR section
+    AFIO->MAPR = 0U
+        | AFIO_MAPR_PD01_REMAP
+        | AFIO_MAPR_SWJ_CFG_JTAGDISABLE; //
 }
