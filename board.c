@@ -64,12 +64,8 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-    // remapping PD0 and PD1
-    // debugger
-    uint32_t mapr = 0;
-    mapr |= (0b1 << 15); // remap PD0 and PD1, see Ref.Man. AFIO_MAPR section
-    // remap PB3 as GPIO
-    mapr |= (0b010 << 24); // disable jtag
-
-    AFIO->MAPR = mapr;
+    //// debugger
+    // remap pd1, disable jtag in order to use pb3,
+    // see RM0008, AFIO_MAPR section 
+    AFIO->MAPR = AFIO_MAPR_PD01_REMAP | AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
 }
