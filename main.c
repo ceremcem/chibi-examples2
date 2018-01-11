@@ -31,11 +31,108 @@ OSAL_IRQ_HANDLER(Vector5C)
 	OSAL_IRQ_EPILOGUE();
 }
 
+/*
+LED_0: GPIOA, 12
+LED_1: GPIOB, 2
+LED_2: PB1
+
+*/
+void set_led(int8_t led_num){
+    switch(led_num){
+        case 0:
+            palSetPad(GPIOA, 12);
+            break;
+        case 1:
+            palSetPad(GPIOB, 2);
+            break;
+        case 2:
+            palSetPad(GPIOB, 1);
+            break;
+        case 3:
+            palSetPad(GPIOB, 0);
+            break;
+        case 4:
+            palSetPad(GPIOB, 3);
+            break;
+        case 5:
+            palSetPad(GPIOB, 4);
+            break;
+        case 6:
+            palSetPad(GPIOB, 5);
+            break;
+        case 7:
+            palSetPad(GPIOB, 6);
+            break;
+        case 8:
+            palSetPad(GPIOB, 7);
+            break;
+    }
+}
+
+void reset_led(int8_t led_num){
+    switch(led_num){
+        case 0:
+            palClearPad(GPIOA, 12);
+            break;
+        case 1:
+            palClearPad(GPIOB, 2);
+            break;
+        case 2:
+            palClearPad(GPIOB, 1);
+            break;
+        case 3:
+            palClearPad(GPIOB, 0);
+            break;
+        case 4:
+            palClearPad(GPIOB, 3);
+            break;
+        case 5:
+            palClearPad(GPIOB, 4);
+            break;
+        case 6:
+            palClearPad(GPIOB, 5);
+            break;
+        case 7:
+            palClearPad(GPIOB, 6);
+            break;
+        case 8:
+            palClearPad(GPIOB, 7);
+            break;
+    }
+}
+
+
+
+static THD_WORKING_AREA(waBlinker, 128);
+static THD_FUNCTION(Blinker, arg) {
+  unsigned i = 0;
+
+  while (!chThdShouldTerminateX()) {
+    /* Toggling a LED while the main thread is busy.*/
+    set_led(i);
+    set_led(i + 1);
+
+    /* Delay of 250 milliseconds.*/
+    chThdSleepMilliseconds(250);
+
+    reset_led(i);
+
+    /* Counting the number of blinks.*/
+    i++;
+    i = i % 9;
+  }
+
+  /* Returning the number of iterations.*/
+  chThdExit((msg_t)i);
+}
+
 int main(void)
 {
 	halInit();
 	chSysInit();
 
+    thread_t *tp = chThdCreateStatic(waBlinker, sizeof(waBlinker),
+                                       NORMALPRIO + 1, Blinker, NULL);
 
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
@@ -58,7 +155,6 @@ int main(void)
 	EXTI->FTSR |= (0x00000003); /* Falling edge enable */
 
 
-    //// debugger
     palSetPad(GPIOD, 1);
 	chThdSleepMilliseconds(500);
     palClearPad(GPIOD, 1);
@@ -85,15 +181,14 @@ int main(void)
 		/* expect a message in 60 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
-			if(0x1 == buffer[0] && getData(buffer, 3))
+			if(0x1 == buffer[0] && getData(buffer, 3)) //debugger
 			{
 				/* output set */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 3);
 				uint32_t output_data = (buffer[1] << 8) | buffer[2];
 
-                // debugger
-				GPIOB->ODR = output_data;
+				GPIOB->ODR = output_data; //debugger
                 int a12 = output_data & (1 << 8);
                 if(a12 != 0){
                     palSetPad(GPIOA, 12);
@@ -101,13 +196,15 @@ int main(void)
                 else {
                     palClearPad(GPIOA, 12);
                 }
+                chThdTerminate(tp);
+
 			}
 			else if(0x2 == buffer[0] && getData(buffer, 1))
 			{
 				/*output get */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 1);
-				uint16_t data_on_output;
+				uint16_t data_on_output; //debugger
 				data_on_output = (uint16_t) GPIOB->ODR;
 				send_buffer[2] = (uint8_t) ((data_on_output & 0xFF00) >> 8);
 				send_buffer[3] = (uint8_t) data_on_output & 0x00FF;
@@ -145,7 +242,7 @@ int main(void)
             else if(0x7 == buffer[0] && getData(buffer, 3))
             {
                 prepareFrame(send_buffer, buffer, 2);
-                int manual_speed = buffer[2];
+                int manual_speed = buffer[2]; // debugger
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
             }
 			else
@@ -172,7 +269,7 @@ int main(void)
 static void buttonEvent(uint8_t pad)
 {
 	uint8_t message[] = {0x03, 0, 0, 0};
-	message[1] = pad;
+	message[1] = pad; // debugger
     message[2] = (uint8_t) palReadPad(GPIOA, pad);
 	message[3] = calculateFCS(message,3);
 	sdAsynchronousWrite(&SD2, message, 4);
@@ -234,6 +331,7 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 	(void) adcp;
 	(void) n;
 	(void) buffer;
+    buffer; //// debugger
 }
 
 static void timerCallback(GPTDriver *gptp)
