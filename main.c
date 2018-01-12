@@ -102,7 +102,6 @@ void reset_led(int8_t led_num){
 }
 
 
-
 static THD_WORKING_AREA(waBlinker, 128);
 static THD_FUNCTION(Blinker, arg) {
   unsigned i = 0;
@@ -115,7 +114,9 @@ static THD_FUNCTION(Blinker, arg) {
     /* Delay of 250 milliseconds.*/
     chThdSleepMilliseconds(250);
 
-    reset_led(i);
+    if (i > 0){
+        reset_led(i);
+    }
 
     /* Counting the number of blinks.*/
     i++;
@@ -183,6 +184,7 @@ int main(void)
 		{
 			if(0x1 == buffer[0] && getData(buffer, 3)) //debugger
 			{
+
 				/* output set */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 3);
@@ -196,7 +198,6 @@ int main(void)
                 else {
                     palClearPad(GPIOA, 12);
                 }
-                chThdTerminate(tp);
 
 			}
 			else if(0x2 == buffer[0] && getData(buffer, 1))
@@ -244,6 +245,12 @@ int main(void)
                 prepareFrame(send_buffer, buffer, 2);
                 int manual_speed = buffer[2]; // debugger
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
+            }
+            else if(0x8 == buffer[0] && getData(buffer, 2)){
+                chThdTerminate(tp);
+                for(uint8_t i = 0; i < 9; i++){
+                    reset_led(i);
+                }
             }
 			else
 			{
@@ -331,7 +338,17 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 	(void) adcp;
 	(void) n;
 	(void) buffer;
-    buffer; //// debugger
+    buffer; // debugger
+    uint8_t message[] = {0, 0, 0, 0};
+
+    /*
+    message[0] = (uint8_t) ((uint32_t) buffer) >> 3;
+    message[1] = (uint8_t) ((uint32_t)buffer & 0x00ffffff) >> 2;
+    message[2] = (uint8_t) ((uint32_t)buffer & 0x0000ffff) >> 1;
+    message[3] = (uint8_t) ((uint32_t)buffer & 0x000000ff);
+
+    ser_asend(message, 4);
+    */
 }
 
 static void timerCallback(GPTDriver *gptp)
