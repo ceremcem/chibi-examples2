@@ -113,8 +113,8 @@ void write_led(uint8_t led_num, bool state){
 
 #define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
 
-static THD_WORKING_AREA(waBlinker, 128);
-static THD_FUNCTION(Blinker, arg) {
+static THD_WORKING_AREA(wa_scanner_leds, 128);
+static THD_FUNCTION(scanner_leds, arg) {
   unsigned i = 0;
 
   while (!chThdShouldTerminateX()) {
@@ -147,6 +147,16 @@ static THD_FUNCTION(restart_mb, arg) {
     palSetPad(GPIOD, 1);
 }
 
+static THD_WORKING_AREA(wa_blink_led, 128);
+static THD_FUNCTION(blink_led, arg) {
+    uint8_t led = ((uint8_t *) arg)[1];
+    uint8_t duration = ((uint8_t *) arg)[2];
+
+    set_led(led);
+    chThdSleepMilliseconds(duration);
+    reset_led(led);
+}
+
 void set_fan_speed(uint8_t speed){
     pwmEnableChannel(&PWMD1, 3, speed);
 }
@@ -156,8 +166,8 @@ int main(void)
 	halInit();
 	chSysInit();
 
-    thread_t *tp = chThdCreateStatic(waBlinker, sizeof(waBlinker),
-                                       NORMALPRIO + 1, Blinker, NULL);
+    thread_t *tp = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
+        NORMALPRIO + 1, scanner_leds, NULL);
 
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
@@ -181,10 +191,11 @@ int main(void)
 
     // restart mb
     thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
-                                       NORMALPRIO + 1, restart_mb, NULL);
+        NORMALPRIO + 1, restart_mb, NULL);
 
 
     uint8_t mb_restart_limit = 3;
+    uint8_t mb_restart_count = 0;
 	/*Main task loop*/
 	while(!0)
 	{
@@ -197,7 +208,7 @@ int main(void)
 		/*start doing own job*/
 		gptStartContinuous(&GPTD3, 40000);
 
-		/* expect a message in 60 seconds otherwise reset the board */
+		/* expect a message in 30 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
 			if(0x1 == buffer[0] && getData(buffer, 3)) ////debugger
@@ -207,20 +218,9 @@ int main(void)
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 3);
 				uint32_t output_data = (buffer[1] << 8) | buffer[2];
-
-				GPIOB->ODR = output_data;
-
-                int led9 = GET_BIT(output_data, 8); // debugger
-                
-
-                int a12 = output_data & (1 << 8);
-                if(a12 != 0){
-                    palSetPad(GPIOA, 12);
+                for (uint8_t i = 0; i < 9; i++){
+                    write_led(i, GET_BIT(output_data, i));
                 }
-                else {
-                    palClearPad(GPIOA, 12);
-                }
-
 			}
 			else if(0x2 == buffer[0] && getData(buffer, 1))
 			{
@@ -262,20 +262,40 @@ int main(void)
 				send_length = 2;
 				//temp_thr = buffer[1];
 			}
-            else if(0x7 == buffer[0] && getData(buffer, 3))
-            {
+            else if(0x7 == buffer[0] && getData(buffer, 3)){
+                // set fan auto treshold / manual speed
                 prepareFrame(send_buffer, buffer, 2);
                 int manual_speed = buffer[2]; //// debugger
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
             }
             else if(0x8 == buffer[0] && getData(buffer, 2)){
-                chThdTerminate(tp); // debugger
+                // stop the scanner led function
+                chThdTerminate(tp); //// debugger
                 for(uint8_t i = 0; i < 9; i++){
                     reset_led(i);
                 }
                 send_length = 2;
                 send_buffer[1] = 0x8;
             }
+            else if(0x9 == buffer[0] && getData(buffer, 2)){
+                // soft-reset mb
+                send_length = 2;
+                send_buffer[1] = 0x8;
+                palSetPad(GPIOB, 8);
+                chThdSleepMilliseconds(1000);
+                palClearPad(GPIOB, 8);
+
+                // reset the startup heartbeat count
+                mb_restart_count = 0;
+            }
+            else if(0xA == buffer[0] && getData(buffer, 3)){
+                // blink led
+                uint8_t led_num = buffer[1];
+                uint8_t duration = buffer[2];
+                chThdCreateStatic(wa_blink_led, sizeof(wa_blink_led),
+                    NORMALPRIO + 1, blink_led, buffer);
+            }
+
 			else
 			{
 				/* invalid frame */
@@ -288,8 +308,8 @@ int main(void)
 		}
 
         // restart mb
-        if (mb_restart_limit > 0){
-            mb_restart_limit--;
+        if (mb_restart_count < mb_restart_limit){
+            mb_restart_count++;
             thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
                                                NORMALPRIO + 1, restart_mb, NULL);
         }
@@ -385,7 +405,7 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
     else {
         auto_speed = (uint8_t) curr;
     }
-    set_fan_speed(auto_speed); // debugger
+    set_fan_speed(auto_speed); //// debugger
     //sdAsynchronousWrite(&SD2, message, 2); // debugger
 }
 
