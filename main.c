@@ -1,8 +1,9 @@
 
 #include "main.h"
 
-static uint8_t temp_thr;
-//static int8_t last_temp_val;
+bool fan_auto = true;
+uint16_t temp_min = 250;
+uint16_t temp_max = 350;
 
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -101,6 +102,16 @@ void reset_led(int8_t led_num){
     }
 }
 
+void write_led(uint8_t led_num, bool state){
+    if (state) {
+        set_led(led_num);
+    }
+    else {
+        reset_led(led_num);
+    }
+}
+
+#define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
 
 static THD_WORKING_AREA(waBlinker, 128);
 static THD_FUNCTION(Blinker, arg) {
@@ -127,6 +138,19 @@ static THD_FUNCTION(Blinker, arg) {
   chThdExit((msg_t)i);
 }
 
+static THD_WORKING_AREA(wa_restart_mb, 128);
+static THD_FUNCTION(restart_mb, arg) {
+    palSetPad(GPIOD, 1);
+	chThdSleepMilliseconds(500);
+    palClearPad(GPIOD, 1);
+	chThdSleepMilliseconds(200);
+    palSetPad(GPIOD, 1);
+}
+
+void set_fan_speed(uint8_t speed){
+    pwmEnableChannel(&PWMD1, 3, speed);
+}
+
 int main(void)
 {
 	halInit();
@@ -138,7 +162,6 @@ int main(void)
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
 	uint8_t send_length;
-	temp_thr = 40; /*set 40 Celcius as default*/
 
 	/*pin configurations are done in board.h*/
 	sdStart(&SD2, NULL);
@@ -156,17 +179,12 @@ int main(void)
 	EXTI->FTSR |= (0x00000003); /* Falling edge enable */
 
 
-    palSetPad(GPIOD, 1);
-	chThdSleepMilliseconds(500);
-    palClearPad(GPIOD, 1);
-	chThdSleepMilliseconds(200);
-    palSetPad(GPIOD, 1);
+    // restart mb
+    thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
+                                       NORMALPRIO + 1, restart_mb, NULL);
 
 
-    // initial motor speed
-	pwmEnableChannel(&PWMD1, 3, 50);/* motor out */
-
-
+    uint8_t mb_restart_limit = 3;
 	/*Main task loop*/
 	while(!0)
 	{
@@ -182,7 +200,7 @@ int main(void)
 		/* expect a message in 60 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
-			if(0x1 == buffer[0] && getData(buffer, 3)) //debugger
+			if(0x1 == buffer[0] && getData(buffer, 3)) ////debugger
 			{
 
 				/* output set */
@@ -190,7 +208,11 @@ int main(void)
 				prepareFrame(send_buffer, buffer, 3);
 				uint32_t output_data = (buffer[1] << 8) | buffer[2];
 
-				GPIOB->ODR = output_data; //debugger
+				GPIOB->ODR = output_data;
+
+                int led9 = GET_BIT(output_data, 8); // debugger
+                
+
                 int a12 = output_data & (1 << 8);
                 if(a12 != 0){
                     palSetPad(GPIOA, 12);
@@ -205,7 +227,7 @@ int main(void)
 				/*output get */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 1);
-				uint16_t data_on_output; //debugger
+				uint16_t data_on_output; ////debugger
 				data_on_output = (uint16_t) GPIOB->ODR;
 				send_buffer[2] = (uint8_t) ((data_on_output & 0xFF00) >> 8);
 				send_buffer[3] = (uint8_t) data_on_output & 0x00FF;
@@ -238,19 +260,21 @@ int main(void)
 				/*motor val set*/
 				prepareFrame(send_buffer, buffer, 2);
 				send_length = 2;
-				temp_thr = buffer[1];
+				//temp_thr = buffer[1];
 			}
             else if(0x7 == buffer[0] && getData(buffer, 3))
             {
                 prepareFrame(send_buffer, buffer, 2);
-                int manual_speed = buffer[2]; // debugger
+                int manual_speed = buffer[2]; //// debugger
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
             }
             else if(0x8 == buffer[0] && getData(buffer, 2)){
-                chThdTerminate(tp);
+                chThdTerminate(tp); // debugger
                 for(uint8_t i = 0; i < 9; i++){
                     reset_led(i);
                 }
+                send_length = 2;
+                send_buffer[1] = 0x8;
             }
 			else
 			{
@@ -262,6 +286,13 @@ int main(void)
 			send_length++;/*crc added to end*/
 			sdWrite(&SD2, send_buffer, send_length);
 		}
+
+        // restart mb
+        if (mb_restart_limit > 0){
+            mb_restart_limit--;
+            thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
+                                               NORMALPRIO + 1, restart_mb, NULL);
+        }
 
 		/*stop pwm*/
 		gptStopTimer(&GPTD3);
@@ -337,18 +368,25 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) adcp;
 	(void) n;
-	(void) buffer;
-    buffer; // debugger
-    uint8_t message[] = {0, 0, 0, 0};
+	uint8_t message[] = {0, 0, 0, 0};
+    uint16_t temp0 = buffer[0];
+    message[0] = (uint8_t) temp0;
+    message[1] = (uint8_t) (temp0 >> 8);
 
-    /*
-    message[0] = (uint8_t) ((uint32_t) buffer) >> 3;
-    message[1] = (uint8_t) ((uint32_t)buffer & 0x00ffffff) >> 2;
-    message[2] = (uint8_t) ((uint32_t)buffer & 0x0000ffff) >> 1;
-    message[3] = (uint8_t) ((uint32_t)buffer & 0x000000ff);
-
-    ser_asend(message, 4);
-    */
+    uint16_t diff = temp_max - temp_min;
+    int16_t curr = ((temp0 - temp_min) * 100 / diff);
+    uint8_t auto_speed;
+    if (curr < 10){
+        auto_speed = 0;
+    }
+    else if (curr > 100){
+        auto_speed = 100;
+    }
+    else {
+        auto_speed = (uint8_t) curr;
+    }
+    set_fan_speed(auto_speed); // debugger
+    //sdAsynchronousWrite(&SD2, message, 2); // debugger
 }
 
 static void timerCallback(GPTDriver *gptp)
