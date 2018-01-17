@@ -364,57 +364,6 @@ static void buttonEvent(uint8_t pad)
 	sdAsynchronousWrite(&SD2, message, 4);
 }
 
-void startMainboard(void)
-{
-	uint8_t data_buffer;
-	const uint8_t wakeup_message[8] = {0xca,0xfe,0xba,0xbe,0xde,0xad,0xbe,0xef};
-	uint8_t counter = 0;
-	uint8_t mainboard_ready;
-	uint32_t start_time;
-	do
-	{
-		mainboard_ready = 0;
-		/*main wake-up algorithm*/
-
-		/* Use pc0 to open mainboard
-		 * it's configured as push-pull in board.h */
-
-		palClearPad(GPIOC, 0);
-		chThdSleepMilliseconds(200);
-		palSetPad(GPIOC, 0);
-		chThdSleepMilliseconds(200);
-		palClearPad(GPIOC, 0);
-
-		start_time = chVTGetSystemTimeX();
-		/*expect wake up signal in 15 seconds*/
-		while(chVTGetSystemTimeX() - start_time < S2ST(15))
-		{
-			sdReadTimeout(&SD2, &data_buffer, 1, 100);
-			if(data_buffer == wakeup_message[counter])
-			{
-				counter++;
-				if(counter == 8)
-				{
-					mainboard_ready = 1;
-					break;
-				}
-			}
-			else if(data_buffer == wakeup_message[0])
-			{
-				counter = 1;
-			}
-			else
-			{
-				counter = 0;
-			}
-		}
-	}while(0 == mainboard_ready);
-
-	/* send deadbeefcafebabe */
-	sdWrite(&SD2, wakeup_message + 4, 4);
-	sdWrite(&SD2, wakeup_message, 4);
-}
-
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) adcp;
