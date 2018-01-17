@@ -113,30 +113,58 @@ void write_led(uint8_t led_num, bool state){
 
 #define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
 
-static THD_WORKING_AREA(wa_scanner_leds, 128);
+
+#define FORWARD true
+#define BACKWARD false
+
+static THD_FUNCTION(glow_led, arg) {
+    uint8_t led_num = arg;
+    uint16_t period = 15;
+    uint16_t duty = 0;
+    bool direction = FORWARD;
+
+    while (1){
+        if (direction == FORWARD){
+            duty++;
+            if (duty == period){
+                direction = BACKWARD;
+            }
+        }
+        else {
+            duty--;
+        }
+        if ((direction == BACKWARD) && (duty == 0)){
+            break;
+        }
+        set_led(led_num);
+        chThdSleepMilliseconds(duty);
+        reset_led(led_num);
+        chThdSleepMilliseconds(period - duty);
+    }
+}
+
+
+static THD_WORKING_AREA(wa_scanner_leds, 1024);
 static THD_FUNCTION(scanner_leds, arg) {
   unsigned i = 0;
 
+  thread_t *tp[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   while (!chThdShouldTerminateX()) {
     /* Toggling a LED while the main thread is busy.*/
-    set_led(i);
-    set_led(i + 1);
-
-    /* Delay of 250 milliseconds.*/
-    chThdSleepMilliseconds(250);
-
-    if (i > 0){
-        reset_led(i);
+    if (tp[i] > 0) {
+        chThdWait(tp[i]);
     }
+    tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
+        NORMALPRIO + 1, glow_led, i);
+
+    chThdSleepMilliseconds(150); // debugger
 
     /* Counting the number of blinks.*/
     i++;
     i = i % 9;
   }
-
-  /* Returning the number of iterations.*/
-  chThdExit((msg_t)i);
 }
+
 
 static THD_WORKING_AREA(wa_restart_mb, 128);
 static THD_FUNCTION(restart_mb, arg) {
@@ -166,6 +194,7 @@ int main(void)
 	halInit();
 	chSysInit();
 
+    // create scanner leds
     thread_t *tp = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
         NORMALPRIO + 1, scanner_leds, NULL);
 
@@ -295,7 +324,9 @@ int main(void)
                 chThdCreateStatic(wa_blink_led, sizeof(wa_blink_led),
                     NORMALPRIO + 1, blink_led, buffer);
             }
-
+            else if(0xB == buffer[0] && getData(buffer, 3)){
+                write_led(buffer[1], buffer[2]);
+            }
 			else
 			{
 				/* invalid frame */

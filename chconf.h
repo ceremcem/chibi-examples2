@@ -46,6 +46,9 @@
 
 #define CH_CFG_ST_RESOLUTION                16
 
+#define CH_USE_DYNAMIC                      TRUE
+#define CH_CFG_USE_HEAP                     TRUE
+
 /**
  * @brief   System tick frequency.
  * @details Frequency of the system timer that drives the system ticks. This
