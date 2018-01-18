@@ -4,8 +4,9 @@
 // BYTE SPLIT: MSB, ..., LSB
 
 bool fan_auto = true;
-uint16_t temp_min = 1250;
-uint16_t temp_max = 1350;
+uint16_t temp_min = 250;
+uint16_t temp_max = 350;
+
 
 uint16_t temp_read[4] = {0xffff, 0xffff, 0xffff, 0xffff};
 
@@ -153,7 +154,7 @@ static THD_FUNCTION(scanner_leds, arg) {
   while (!chThdShouldTerminateX()) {
     /* Toggling a LED while the main thread is busy.*/
     if (tp[i] > 0) {
-        chThdWait(tp[i]);
+        //chThdWait(tp[i]);
     }
     tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
         NORMALPRIO + 1, glow_led, i);
@@ -229,8 +230,6 @@ int main(void)
 	/*Main task loop*/
 	while(!0)
 	{
-		//startMainboard();
-
 		/*enable input interrupts*/
 		nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
 		nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
@@ -251,17 +250,6 @@ int main(void)
                 prepareFrame(send_buffer, buffer);
 				send_length = 2;
                 SPLIT_TWO_BYTES(send_buffer, 2, GPIOB->ODR);
-			}
-			else if(0x3 == buffer[0] && getData(buffer, 0))
-			{
-                // -> 0x03, fcs
-                // <- SOT, 0x03, input state (... INP_1 INP_0), fcs
-                // ---------------------------------------------
-				/*input get */
-                send_length = 1;
-				prepareFrame(send_buffer, buffer);
-				uint8_t input_data= GPIOA->IDR & 0x0003;
-				send_buffer[2] = input_data;
 			}
 			else if(0x4 == buffer[0] && getData(buffer, 3))
 			{
@@ -359,6 +347,15 @@ int main(void)
                 write_led(buffer[1], buffer[2]);
                 send_length = -1;
             }
+			else if(0x3 == buffer[0] && getData(buffer, 1))
+			{
+                // -> 0x03, fcs
+                // <- 0x03, pad_num, state, fcs
+                // ---------------------------------------------
+                send_length = -1;
+                buttonEvent(0);
+                buttonEvent(1);
+			}
 			else
 			{
 				/* invalid frame */
