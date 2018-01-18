@@ -113,6 +113,12 @@ void write_led(uint8_t led_num, bool state){
     }
 }
 
+void set_rgb(uint8_t r, uint8_t g, uint8_t b){
+    pwmEnableChannel(&PWMD1, 1, r);/* red */
+    pwmEnableChannel(&PWMD1, 0, g);/* green */
+    pwmEnableChannel(&PWMD1, 2, b);/* blue */
+}
+
 #define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
 
 
@@ -146,6 +152,21 @@ static THD_FUNCTION(glow_led, arg) {
 }
 
 
+static THD_FUNCTION(glow_rgb, arg) {
+    uint16_t period = 15;
+    uint16_t duty = 0;
+    uint8_t limit = 100;
+    for (uint8_t i = 0; i < 100; i++){
+        set_rgb(i, i, i);
+        chThdSleepMilliseconds(2);
+    }
+    for (uint8_t i = 100; i > 0; i--){
+        set_rgb(i, i, i);
+        chThdSleepMilliseconds(2);
+    }
+    set_rgb(0, 0, 0);
+}
+
 static THD_WORKING_AREA(wa_scanner_leds, 1024);
 static THD_FUNCTION(scanner_leds, arg) {
     set_led(0); // leave power led on
@@ -155,15 +176,19 @@ static THD_FUNCTION(scanner_leds, arg) {
     bool direction = FORWARD;
     while (!chThdShouldTerminateX()) {
         /* Toggling a LED while the main thread is busy.*/
-        if (i == 0) {
-            i++; // skip the animation of the first led
-        }
         if (tp[i] != 0) {
             chThdWait(tp[i]);
             //chThdRelease(tp[i]);
         }
-        tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
-            NORMALPRIO + 1, glow_led, i);
+
+        if (i == 0){
+            tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
+                NORMALPRIO + 1, glow_rgb, i);
+        }
+        else {
+            tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
+                NORMALPRIO + 1, glow_led, i);
+        }
 
         chThdSleepMilliseconds(150); //// debugger
 
@@ -177,7 +202,7 @@ static THD_FUNCTION(scanner_leds, arg) {
             }
         }
         else {
-            if (i == 1) {
+            if (i == 0) {
                 direction = FORWARD;
                 chThdWait(tp[i]);
             }
@@ -185,6 +210,9 @@ static THD_FUNCTION(scanner_leds, arg) {
                 i--;
             }
         }
+    }
+    for (uint8_t i = 0; i < 10; i++){
+        chThdWait(tp[i]);
     }
 }
 
@@ -278,9 +306,7 @@ int main(void)
                 // <- SOT, 0x04, fcs
                 // ---------------------------------------------
 				/*rgb set */
-				pwmEnableChannel(&PWMD1, 0, buffer[2]);/* red */
-				pwmEnableChannel(&PWMD1, 1, buffer[1]);/* green */
-				pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
+                set_rgb(buffer[1], buffer[2], buffer[3]);
 				prepareFrame(send_buffer, buffer);
 				send_length = 0;
 			}
