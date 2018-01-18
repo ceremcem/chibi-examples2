@@ -2,8 +2,12 @@
 #include "main.h"
 
 bool fan_auto = true;
-uint16_t temp_min = 250;
-uint16_t temp_max = 350;
+uint16_t temp_min = 1250;
+uint16_t temp_max = 1350;
+
+uint16_t temp_read[4] = {0xffff, 0xffff, 0xffff, 0xffff};
+
+#define MERGE_TWO_BYTES(a, b) ((a << 8) + b)
 
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -32,12 +36,6 @@ OSAL_IRQ_HANDLER(Vector5C)
 	OSAL_IRQ_EPILOGUE();
 }
 
-/*
-LED_0: GPIOA, 12
-LED_1: GPIOB, 2
-LED_2: PB1
-
-*/
 void set_led(int8_t led_num){
     switch(led_num){
         case 0:
@@ -195,12 +193,12 @@ int main(void)
 	chSysInit();
 
     // create scanner leds
-    thread_t *tp = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
+    thread_t *tp_scanner_leds = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
         NORMALPRIO + 1, scanner_leds, NULL);
 
 	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
 	uint8_t send_buffer[8];
-	uint8_t send_length;
+	int8_t send_length;
 
 	/*pin configurations are done in board.h*/
 	sdStart(&SD2, NULL);
@@ -240,19 +238,9 @@ int main(void)
 		/* expect a message in 30 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
-			if(0x1 == buffer[0] && getData(buffer, 3)) ////debugger
+			if(0x2 == buffer[0] && getData(buffer, 0))
 			{
-
-				/* output set */
-				send_length = 4;
-				prepareFrame(send_buffer, buffer, 3);
-				uint32_t output_data = (buffer[1] << 8) | buffer[2];
-                for (uint8_t i = 0; i < 9; i++){
-                    write_led(i, GET_BIT(output_data, i));
-                }
-			}
-			else if(0x2 == buffer[0] && getData(buffer, 1))
-			{
+                // 0x02, fcs
 				/*output get */
 				send_length = 4;
 				prepareFrame(send_buffer, buffer, 1);
@@ -261,71 +249,87 @@ int main(void)
 				send_buffer[2] = (uint8_t) ((data_on_output & 0xFF00) >> 8);
 				send_buffer[3] = (uint8_t) data_on_output & 0x00FF;
 			}
-			else if(0x3 == buffer[0] && getData(buffer, 1))
+			else if(0x3 == buffer[0] && getData(buffer, 0))
 			{
+                // 0x03, fcs
 				/*input get */
+                send_length = 3;
 				prepareFrame(send_buffer, buffer, 2);
-				send_length = 3;
 				uint8_t input_data= GPIOA->IDR & 0x0003;
 				send_buffer[2] = input_data;
 			}
-			else if(0x4 == buffer[0] && getData(buffer, 4))
+			else if(0x4 == buffer[0] && getData(buffer, 3))
 			{
+                // 0x04, red (0..100), green (0..100), blue (0..100), fcs
 				/*rgb set */
-				prepareFrame(send_buffer, buffer, 4);
-				send_length = 4;
+				prepareFrame(send_buffer, buffer, 3);
 				pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
 				pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
 				pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
+				send_length = 4;
 			}
-			else if(0x5 == buffer[0] && getData(buffer, 1))
+			else if(0x5 == buffer[0] && getData(buffer, 0))
 			{
+                // 0x05, fcs
 				/*therm get */
-				prepareFrame(send_buffer, buffer, 1);
-				send_length = 1;
+				prepareFrame(send_buffer, buffer, 0);
+				send_length = 8;
 			}
 			else if(0x6 == buffer[0] && getData(buffer, 2))
 			{
-				/*motor val set*/
-				prepareFrame(send_buffer, buffer, 2);
-				send_length = 2;
-				//temp_thr = buffer[1];
+                // 0x06, temp_min, temp_max, fcs
+				// set auto fan speed (and mode)
+                fan_auto = true;
+                temp_min = buffer[1] * 10;
+                temp_max = buffer[2] * 10;
+                send_length = -1; // debugger
 			}
-            else if(0x7 == buffer[0] && getData(buffer, 3)){
-                // set fan auto treshold / manual speed
-                prepareFrame(send_buffer, buffer, 2);
-                int manual_speed = buffer[2]; //// debugger
+            else if(0x7 == buffer[0] && getData(buffer, 1)){
+                // 0x07, 0..100 (fan speed), FCS
+                // set manual fan speed
+                send_length = 2;
+                prepareFrame(send_buffer, buffer, send_length);
+                int manual_speed = buffer[1]; //// debugger
+                fan_auto = false;
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
             }
-            else if(0x8 == buffer[0] && getData(buffer, 2)){
+            else if(0x8 == buffer[0] && getData(buffer, 1)){
+                // 0x08, x, FCS
                 // stop the scanner led function
-                chThdTerminate(tp); //// debugger
+                chThdTerminate(tp_scanner_leds); //// debugger
                 for(uint8_t i = 0; i < 9; i++){
                     reset_led(i);
                 }
                 send_length = 2;
-                send_buffer[1] = 0x8;
+                prepareFrame(send_buffer, buffer, send_length);
+
             }
-            else if(0x9 == buffer[0] && getData(buffer, 2)){
+            else if(0x9 == buffer[0] && getData(buffer, 1)){
+                // 0x09, x, FCS
                 // soft-reset mb
-                send_length = 2;
-                send_buffer[1] = 0x8;
                 palSetPad(GPIOB, 8);
                 chThdSleepMilliseconds(1000);
                 palClearPad(GPIOB, 8);
 
                 // reset the startup heartbeat count
                 mb_restart_count = 0;
+                send_length = -1;
             }
-            else if(0xA == buffer[0] && getData(buffer, 3)){
+            else if(0xA == buffer[0] && getData(buffer, 2)){
+                // 0x0a, led number, duration, fcs
                 // blink led
                 uint8_t led_num = buffer[1];
                 uint8_t duration = buffer[2];
                 chThdCreateStatic(wa_blink_led, sizeof(wa_blink_led),
                     NORMALPRIO + 1, blink_led, buffer);
+                send_length = -1;
+
             }
-            else if(0xB == buffer[0] && getData(buffer, 3)){
+            else if(0xB == buffer[0] && getData(buffer, 2)){
+                // 0xb, led number, state, fcs
+                // set led (turn on/off)
                 write_led(buffer[1], buffer[2]);
+                send_length = -1;
             }
 			else
 			{
@@ -333,9 +337,11 @@ int main(void)
 				continue;
 			}
 
-			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
-			send_length++;/*crc added to end*/
-			sdWrite(&SD2, send_buffer, send_length);
+            if (send_length > -1) {
+    			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
+    			send_length++;/*crc added to end*/
+    			sdWrite(&SD2, send_buffer, send_length);
+            }
 		}
 
         // restart mb
@@ -354,7 +360,6 @@ int main(void)
 	}
 }
 
-/* Not tested */
 static void buttonEvent(uint8_t pad)
 {
 	uint8_t message[] = {0x03, 0, 0, 0};
@@ -368,25 +373,25 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 {
 	(void) adcp;
 	(void) n;
-	uint8_t message[] = {0, 0, 0, 0};
+    for (uint8_t i = 0; i < 4; i++){
+        temp_read[i] = buffer[i];
+    }
     uint16_t temp0 = buffer[0];
-    message[0] = (uint8_t) temp0;
-    message[1] = (uint8_t) (temp0 >> 8);
-
     uint16_t diff = temp_max - temp_min;
     int16_t curr = ((temp0 - temp_min) * 100 / diff);
     uint8_t auto_speed;
-    if (curr < 10){
-        auto_speed = 0;
+    if (fan_auto) {
+        if (curr < 10){
+            auto_speed = 0;
+        }
+        else if (curr > 100){
+            auto_speed = 100;
+        }
+        else {
+            auto_speed = (uint8_t) curr;
+        }
+        set_fan_speed(auto_speed);
     }
-    else if (curr > 100){
-        auto_speed = 100;
-    }
-    else {
-        auto_speed = (uint8_t) curr;
-    }
-    set_fan_speed(auto_speed); //// debugger
-    //sdAsynchronousWrite(&SD2, message, 2); // debugger
 }
 
 static void timerCallback(GPTDriver *gptp)
@@ -408,15 +413,9 @@ void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length)
 
 uint8_t getData(uint8_t *buffer, uint8_t count)
 {
-    // TODO: use timeout read
+    count++; // for fcs
 	sdRead(&SD2, &(buffer[1]), count);
 	uint8_t crc = calculateFCS(buffer, count);
-
-
-    /******** FIXME: returning immediately only for debugging purposes ****/
-    //return true;
-
-
 	return (crc == buffer[count]);
 }
 
