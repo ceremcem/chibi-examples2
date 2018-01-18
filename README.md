@@ -1,8 +1,3 @@
-Fetching
---------------------
-
-    git clone --recurse https://aktos.io/git/efecanicoz/io-expander2
-
 Flashing and debugging
 ---------------------
 
@@ -35,18 +30,6 @@ COMMUNICATION SETTINGS:
 --------------
 
 Serial Port Settings: 38400baud, 8N1
-
-STARTUP:
-------
-	At power on mcu waits for 2 seconds
-	sets C0 to 0
-	waits 200 ms
-	sets C0 to 1
-	waits 200 ms
-	sets C0 to 0
-
-	after this sequence mcu expect to receive 0x(cafebabedeadbeef) if this message received then mcu sends 0x(deadbeefcafebabe) back
-		otherwise power on sequence is repeated
 
 
 MESSAGE PROTOCOL:
