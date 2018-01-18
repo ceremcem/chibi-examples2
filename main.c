@@ -148,23 +148,44 @@ static THD_FUNCTION(glow_led, arg) {
 
 static THD_WORKING_AREA(wa_scanner_leds, 1024);
 static THD_FUNCTION(scanner_leds, arg) {
-  unsigned i = 0;
+    set_led(0); // leave power led on
+    unsigned i = 0;
+    thread_t *tp[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  thread_t *tp[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  while (!chThdShouldTerminateX()) {
-    /* Toggling a LED while the main thread is busy.*/
-    if (tp[i] > 0) {
-        //chThdWait(tp[i]);
+    bool direction = FORWARD;
+    while (!chThdShouldTerminateX()) {
+        /* Toggling a LED while the main thread is busy.*/
+        if (i == 0) {
+            i++; // skip the animation of the first led
+        }
+        if (tp[i] != 0) {
+            chThdWait(tp[i]);
+            //chThdRelease(tp[i]);
+        }
+        tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
+            NORMALPRIO + 1, glow_led, i);
+
+        chThdSleepMilliseconds(150); //// debugger
+
+        if (direction == FORWARD){
+            if (i == 8) {
+                direction = BACKWARD;
+                chThdWait(tp[i]);
+            }
+            else {
+                i++;
+            }
+        }
+        else {
+            if (i == 1) {
+                direction = FORWARD;
+                chThdWait(tp[i]);
+            }
+            else {
+                i--;
+            }
+        }
     }
-    tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
-        NORMALPRIO + 1, glow_led, i);
-
-    chThdSleepMilliseconds(150); //// debugger
-
-    /* Counting the number of blinks.*/
-    i++;
-    i = i % 9;
-  }
 }
 
 
@@ -257,8 +278,8 @@ int main(void)
                 // <- SOT, 0x04, fcs
                 // ---------------------------------------------
 				/*rgb set */
-				pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
-				pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
+				pwmEnableChannel(&PWMD1, 0, buffer[2]);/* red */
+				pwmEnableChannel(&PWMD1, 1, buffer[1]);/* green */
 				pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
 				prepareFrame(send_buffer, buffer);
 				send_length = 0;
@@ -372,11 +393,13 @@ int main(void)
 		}
 
         // restart mb
+        /*
         if (mb_restart_count < mb_restart_limit){
             mb_restart_count++;
             thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
                                                NORMALPRIO + 1, restart_mb, NULL);
         }
+        */
 
 		/*stop pwm*/
 		gptStopTimer(&GPTD3);
