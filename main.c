@@ -1,13 +1,16 @@
 
 #include "main.h"
 
+// BYTE SPLIT: MSB, ..., LSB
+
 bool fan_auto = true;
 uint16_t temp_min = 1250;
 uint16_t temp_max = 1350;
 
 uint16_t temp_read[4] = {0xffff, 0xffff, 0xffff, 0xffff};
 
-#define MERGE_TWO_BYTES(a, b) ((a << 8) + b)
+#define MERGE_TWO_BYTES(a, b)                   ((a << 8) + b)
+#define SPLIT_TWO_BYTES(target, index, src)     target[index] = ((src & 0xff00) >> 8); target[index+1] = (src & 0xff);
 
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -155,7 +158,7 @@ static THD_FUNCTION(scanner_leds, arg) {
     tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
         NORMALPRIO + 1, glow_led, i);
 
-    chThdSleepMilliseconds(150); // debugger
+    chThdSleepMilliseconds(150); //// debugger
 
     /* Counting the number of blinks.*/
     i++;
@@ -196,8 +199,8 @@ int main(void)
     thread_t *tp_scanner_leds = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
         NORMALPRIO + 1, scanner_leds, NULL);
 
-	uint8_t buffer[8] = {0,0,0,0,0,0,0,0};
-	uint8_t send_buffer[8];
+	uint8_t buffer[12] = {0,0,0,0,0,0,0,0};
+	uint8_t send_buffer[12];
 	int8_t send_length;
 
 	/*pin configurations are done in board.h*/
@@ -238,74 +241,95 @@ int main(void)
 		/* expect a message in 30 seconds otherwise reset the board */
 		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
 		{
+            send_length = -1;
 			if(0x2 == buffer[0] && getData(buffer, 0))
 			{
-                // 0x02, fcs
+                // -> 0x02, fcs
+                // <- SOT, 0x02, ODR_hi_byte, ODR_lo_byte, fcs
+                // ---------------------------------------------
 				/*output get */
-				send_length = 4;
-				prepareFrame(send_buffer, buffer, 1);
-				uint16_t data_on_output; ////debugger
-				data_on_output = (uint16_t) GPIOB->ODR;
-				send_buffer[2] = (uint8_t) ((data_on_output & 0xFF00) >> 8);
-				send_buffer[3] = (uint8_t) data_on_output & 0x00FF;
+                prepareFrame(send_buffer, buffer);
+				send_length = 2;
+                SPLIT_TWO_BYTES(send_buffer, 2, GPIOB->ODR);
 			}
 			else if(0x3 == buffer[0] && getData(buffer, 0))
 			{
-                // 0x03, fcs
+                // -> 0x03, fcs
+                // <- SOT, 0x03, input state (... INP_1 INP_0), fcs
+                // ---------------------------------------------
 				/*input get */
-                send_length = 3;
-				prepareFrame(send_buffer, buffer, 2);
+                send_length = 1;
+				prepareFrame(send_buffer, buffer);
 				uint8_t input_data= GPIOA->IDR & 0x0003;
 				send_buffer[2] = input_data;
 			}
 			else if(0x4 == buffer[0] && getData(buffer, 3))
 			{
-                // 0x04, red (0..100), green (0..100), blue (0..100), fcs
+                // -> 0x04, red (0..100), green (0..100), blue (0..100), fcs
+                // <- SOT, 0x04, fcs
+                // ---------------------------------------------
 				/*rgb set */
-				prepareFrame(send_buffer, buffer, 3);
 				pwmEnableChannel(&PWMD1, 0, buffer[1]);/* red */
 				pwmEnableChannel(&PWMD1, 1, buffer[2]);/* green */
 				pwmEnableChannel(&PWMD1, 2, buffer[3]);/* blue */
-				send_length = 4;
+				prepareFrame(send_buffer, buffer);
+				send_length = 0;
 			}
 			else if(0x5 == buffer[0] && getData(buffer, 0))
 			{
-                // 0x05, fcs
+                // -> 0x05, fcs
+                // <- SOT, 0x05, temp[0]_hi, temp[0]_lo,
+                //          temp[1]_hi, temp[1]_lo,
+                //          temp[2]_hi, temp[2]_lo,
+                //          temp[3]_hi, temp[3]_lo, fcs
+                // ---------------------------------------------
 				/*therm get */
-				prepareFrame(send_buffer, buffer, 0);
+				prepareFrame(send_buffer, buffer);
 				send_length = 8;
+                SPLIT_TWO_BYTES(send_buffer, 2, temp_read[0]);
+                SPLIT_TWO_BYTES(send_buffer, 4, temp_read[1]);
+                SPLIT_TWO_BYTES(send_buffer, 6, temp_read[2]);
+                SPLIT_TWO_BYTES(send_buffer, 8, temp_read[3]); // debugger
 			}
 			else if(0x6 == buffer[0] && getData(buffer, 2))
 			{
-                // 0x06, temp_min, temp_max, fcs
+                // -> 0x06, temp_min, temp_max, fcs
+                // <- SOT, 0x06, fcs
+                // ---------------------------------------------
 				// set auto fan speed (and mode)
                 fan_auto = true;
                 temp_min = buffer[1] * 10;
                 temp_max = buffer[2] * 10;
-                send_length = -1; // debugger
+				prepareFrame(send_buffer, buffer);
+                send_length = 0;
 			}
             else if(0x7 == buffer[0] && getData(buffer, 1)){
-                // 0x07, 0..100 (fan speed), FCS
+                // -> 0x07, 0..100 (fan speed), FCS
+                // <- SOT, 0x07, FCS
+                // ---------------------------------------------
                 // set manual fan speed
-                send_length = 2;
-                prepareFrame(send_buffer, buffer, send_length);
+                prepareFrame(send_buffer, buffer);
+                send_length = 0;
                 int manual_speed = buffer[1]; //// debugger
                 fan_auto = false;
 				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
             }
             else if(0x8 == buffer[0] && getData(buffer, 1)){
-                // 0x08, x, FCS
+                // -> 0x08, x, FCS
+                // <- SOT, 0x08, FCS
+                // ---------------------------------------------
                 // stop the scanner led function
                 chThdTerminate(tp_scanner_leds); //// debugger
                 for(uint8_t i = 0; i < 9; i++){
                     reset_led(i);
                 }
-                send_length = 2;
-                prepareFrame(send_buffer, buffer, send_length);
-
+                send_length = 0;
+                prepareFrame(send_buffer, buffer);
             }
             else if(0x9 == buffer[0] && getData(buffer, 1)){
-                // 0x09, x, FCS
+                // -> 0x09, x, FCS
+                // <- ...
+                // ---------------------------------------------
                 // soft-reset mb
                 palSetPad(GPIOB, 8);
                 chThdSleepMilliseconds(1000);
@@ -316,7 +340,9 @@ int main(void)
                 send_length = -1;
             }
             else if(0xA == buffer[0] && getData(buffer, 2)){
-                // 0x0a, led number, duration, fcs
+                // -> 0x0a, led number, duration, fcs
+                // <- ...
+                // ---------------------------------------------
                 // blink led
                 uint8_t led_num = buffer[1];
                 uint8_t duration = buffer[2];
@@ -326,7 +352,9 @@ int main(void)
 
             }
             else if(0xB == buffer[0] && getData(buffer, 2)){
-                // 0xb, led number, state, fcs
+                // -> 0xb, led number, state, fcs
+                // <- ...
+                // ---------------------------------------------
                 // set led (turn on/off)
                 write_led(buffer[1], buffer[2]);
                 send_length = -1;
@@ -338,9 +366,11 @@ int main(void)
 			}
 
             if (send_length > -1) {
+    			send_length++; // for SOT
+                send_length++; // for TYPE
     			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
-    			send_length++;/*crc added to end*/
-    			sdWrite(&SD2, send_buffer, send_length);
+                send_length++; // for FCS
+    			sdWrite(&SD2, send_buffer, send_length); // debugger
             }
 		}
 
@@ -375,10 +405,18 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
 	(void) n;
     for (uint8_t i = 0; i < 4; i++){
         temp_read[i] = buffer[i];
+        if (temp_read[i] > 40){
+            temp_read[i] -= 40;
+        }
+        else {
+            temp_read[i] = 0;
+        }
     }
-    uint16_t temp0 = buffer[0];
     uint16_t diff = temp_max - temp_min;
-    int16_t curr = ((temp0 - temp_min) * 100 / diff);
+    if (diff < 20){
+        diff = 20;
+    }
+    int16_t curr = ((temp_read[0] - temp_min) * 100 / diff);
     uint8_t auto_speed;
     if (fan_auto) {
         if (curr < 10){
@@ -400,14 +438,10 @@ static void timerCallback(GPTDriver *gptp)
     adcStartConversionI (&ADCD1, &adccg, samples_buf, ADC_BUF_DEPTH);
 }
 
-void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length)
+void prepareFrame(uint8_t *to_send, uint8_t *received)
 {
-	uint8_t i;
-	to_send[0] = 0x55;/*ACK*/
-	for(i = 0; i < length; i++)
-	{
-		to_send[i+1] = received[i];
-	}
+	to_send[0] = 0x55; // SOT
+    to_send[1] = received[0];
 	return;
 }
 

@@ -27,7 +27,7 @@
 /* Function prototypes */
 uint8_t calculateFCS(uint8_t *buffer, uint8_t count);
 uint8_t getData(uint8_t *buffer, uint8_t count);
-void prepareFrame(uint8_t *to_send, uint8_t *received, uint8_t length);
+void prepareFrame(uint8_t *to_send, uint8_t *received);
 static void timerCallback(GPTDriver *gptp);
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 static void buttonEvent(uint8_t pad);
@@ -35,7 +35,7 @@ void startMainboard(void);
 
 
 /* Hal configurations */
-static PWMConfig pwmcfg = 
+static PWMConfig pwmcfg =
 {
 	10000,                                  /* 100 Khz PWM clock frequency.   */
 	100,                                    /* 100 period in ticks,thus 1 kHz sample freq.*/
