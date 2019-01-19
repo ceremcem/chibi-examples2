@@ -33,8 +33,6 @@ const PALConfig pal_default_config =
 #endif
 
 
-
-
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before

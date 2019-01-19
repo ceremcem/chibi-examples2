@@ -167,10 +167,11 @@ static THD_FUNCTION(glow_rgb, arg) {
     set_rgb(0, 0, 0);
 }
 
-static THD_WORKING_AREA(wa_scanner_leds, 1024);
+static THD_WORKING_AREA(wa_scanner_leds, 256);
 static THD_FUNCTION(scanner_leds, arg) {
     set_led(0); // leave power led on
-    unsigned i = 0;
+    uint8_t start_led = 2;
+    unsigned i = start_led;
     thread_t *tp[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     bool direction = FORWARD;
@@ -181,8 +182,9 @@ static THD_FUNCTION(scanner_leds, arg) {
             //chThdRelease(tp[i]);
         }
 
+
         if (i == 0){
-            tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(128), "hello",
+            tp[i] = chThdCreateFromHeap(NULL, THD_WORKING_AREA_SIZE(256), "hello",
                 NORMALPRIO + 1, glow_rgb, i);
         }
         else {
@@ -202,7 +204,7 @@ static THD_FUNCTION(scanner_leds, arg) {
             }
         }
         else {
-            if (i == 0) {
+            if (i == start_led) {
                 direction = FORWARD;
                 chThdWait(tp[i]);
             }
@@ -211,9 +213,10 @@ static THD_FUNCTION(scanner_leds, arg) {
             }
         }
     }
+    /*
     for (uint8_t i = 0; i < 10; i++){
         chThdWait(tp[i]);
-    }
+    }*/
 }
 
 
@@ -283,7 +286,7 @@ int main(void)
 		nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
 		nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
 
-		/*start doing own job*/
+		/* poll the thermometers */
 		gptStartContinuous(&GPTD3, 40000);
 
 		/* expect a message in 30 seconds otherwise reset the board */
@@ -355,10 +358,8 @@ int main(void)
                 // ---------------------------------------------
                 // stop the scanner led function
                 chThdTerminate(tp_scanner_leds); //// debugger
-                for(uint8_t i = 0; i < 9; i++){
-                    reset_led(i);
-                }
                 send_length = 0;
+                mb_restart_count = 999;
                 prepareFrame(send_buffer, buffer);
             }
             else if(0x9 == buffer[0] && getData(buffer, 1)){
@@ -419,13 +420,11 @@ int main(void)
 		}
 
         // restart mb
-        /*
         if (mb_restart_count < mb_restart_limit){
             mb_restart_count++;
             thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
                                                NORMALPRIO + 1, restart_mb, NULL);
         }
-        */
 
 		/*stop pwm*/
 		gptStopTimer(&GPTD3);

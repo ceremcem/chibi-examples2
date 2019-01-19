@@ -88,6 +88,8 @@ PROJECT = ch
 # Imported source files and paths
 BASE_DIR := ${CURDIR}
 CHIBIOS = $(BASE_DIR)/chibios
+CONFDIR = $(BASE_DIR)/board
+
 # Startup files.
 include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.mk
 # HAL-OSAL files (optional).
@@ -102,7 +104,7 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
 
 # List of all the board related files.
-BOARDSRC = board.c
+BOARDSRC = $(CONFDIR)/board.c
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -202,7 +204,7 @@ UDEFS =
 UADEFS =
 
 # List all user directories here
-UINCDIR =
+UINCDIR = $(BASE_DIR)/board
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -216,5 +218,9 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+CLEAN_RULE_HOOK:
+	@rm *.gch 2> /dev/null || true
+	@rm $(CONFDIR)/*.gch 2> /dev/null || true
+	@rm $(BASE_DIR)/_breakpoints.txt 2> /dev/null || true
 
 include ./mcu-debug/main.mk
