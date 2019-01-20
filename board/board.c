@@ -22,6 +22,8 @@
  *          This variable is used by the HAL when initializing the PAL driver.
  */
 #if HAL_USE_PAL || defined(__DOXYGEN__)
+#include "digital_io.h"
+
 const PALConfig pal_default_config =
 {
   {VAL_GPIOAODR, VAL_GPIOACRL, VAL_GPIOACRH},
@@ -62,10 +64,4 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-    //// debugger
-    // remap pd1, disable jtag in order to use pb3,
-    // see RM0008, AFIO_MAPR section
-    AFIO->MAPR = 0U
-        | AFIO_MAPR_PD01_REMAP
-        | AFIO_MAPR_SWJ_CFG_JTAGDISABLE; //
 }

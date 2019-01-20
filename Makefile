@@ -115,7 +115,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       main.c
+       main.c foo/mb_restart.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -204,7 +204,7 @@ UDEFS =
 UADEFS =
 
 # List all user directories here
-UINCDIR = $(BASE_DIR)/board
+UINCDIR = $(BASE_DIR)/board $(BASE_DIR)/foo
 
 # List the user directory to look for the libraries here
 ULIBDIR =

@@ -1,5 +1,7 @@
 
 #include "main.h"
+extern void restart_mb(void*);
+extern THD_WORKING_AREA(wa_restart_mb, 128);
 
 // BYTE SPLIT: MSB, ..., LSB
 
@@ -13,32 +15,6 @@ uint16_t temp_read[4] = {0xffff, 0xffff, 0xffff, 0xffff};
 #define MERGE_TWO_BYTES(a, b)                   ((a << 8) + b)
 #define SPLIT_TWO_BYTES(target, index, src)     target[index] = ((src & 0xff00) >> 8); target[index+1] = (src & 0xff);
 
-#define STM32_DISABLE_EXTI0_HANDLER
-OSAL_IRQ_HANDLER(Vector58)
-{
-    // Vector58 : event for first bit of a port, see chibios
-	OSAL_IRQ_PROLOGUE();
-
-	buttonEvent(0);
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000001U;
-
-	OSAL_IRQ_EPILOGUE();
-}
-
-#define STM32_DISABLE_EXTI1_HANDLER
-OSAL_IRQ_HANDLER(Vector5C)
-{
-    // Vector5C: event for second bit of a port, see chibios
-
-	OSAL_IRQ_PROLOGUE();
-
-	buttonEvent(1);
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000002U;
-
-	OSAL_IRQ_EPILOGUE();
-}
 
 void set_led(int8_t led_num){
     switch(led_num){
@@ -120,7 +96,6 @@ void set_rgb(uint8_t r, uint8_t g, uint8_t b){
 }
 
 #define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
-
 
 #define FORWARD true
 #define BACKWARD false
@@ -220,15 +195,6 @@ static THD_FUNCTION(scanner_leds, arg) {
 }
 
 
-static THD_WORKING_AREA(wa_restart_mb, 128);
-static THD_FUNCTION(restart_mb, arg) {
-    palSetPad(GPIOD, 1);
-	chThdSleepMilliseconds(500);
-    palClearPad(GPIOD, 1);
-	chThdSleepMilliseconds(200);
-    palSetPad(GPIOD, 1);
-}
-
 static THD_WORKING_AREA(wa_blink_led, 128);
 static THD_FUNCTION(blink_led, arg) {
     uint8_t led = ((uint8_t *) arg)[1];
@@ -243,14 +209,43 @@ void set_fan_speed(uint8_t speed){
     pwmEnableChannel(&PWMD1, 3, speed);
 }
 
+/* Register callbacks (1/2) */
+#define STM32_DISABLE_EXTI0_HANDLER
+OSAL_IRQ_HANDLER(Vector58)
+{
+    // Vector58 : event for first bit of a port, see chibios
+	OSAL_IRQ_PROLOGUE();
+
+	buttonEvent(0);
+	/* Tell you read the interrupt*/
+	EXTI->PR |= 0x00000001U;
+
+	OSAL_IRQ_EPILOGUE();
+}
+
+#define STM32_DISABLE_EXTI1_HANDLER
+OSAL_IRQ_HANDLER(Vector5C)
+{
+    // Vector5C: event for second bit of a port, see chibios
+
+	OSAL_IRQ_PROLOGUE();
+
+	buttonEvent(1);
+	/* Tell you read the interrupt*/
+	EXTI->PR |= 0x00000002U;
+
+	OSAL_IRQ_EPILOGUE();
+}
+
+
 int main(void)
 {
 	halInit();
 	chSysInit();
 
-    /* Register callbacks */
+    /* Register callbacks (2/2) */
     timer_config.callback = timerCallback;
-    adccg.end_cb = adcReadCallback; 
+    adccg.end_cb = adcReadCallback;
 
     // create scanner leds
     thread_t *tp_scanner_leds = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
