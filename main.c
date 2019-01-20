@@ -248,6 +248,10 @@ int main(void)
 	halInit();
 	chSysInit();
 
+    /* Register callbacks */
+    timer_config.callback = timerCallback;
+    adccg.end_cb = adcReadCallback; 
+
     // create scanner leds
     thread_t *tp_scanner_leds = chThdCreateStatic(wa_scanner_leds, sizeof(wa_scanner_leds),
         NORMALPRIO + 1, scanner_leds, NULL);
