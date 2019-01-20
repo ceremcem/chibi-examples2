@@ -115,7 +115,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       main.c foo/mb_restart.c
+       main.c $(wildcard includes/*.c)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
