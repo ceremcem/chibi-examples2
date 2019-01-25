@@ -103,9 +103,6 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Define linker script file here
 LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
 
-# List of all the board related files.
-BOARDSRC = $(CONFDIR)/board.c
-
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC = $(STARTUPSRC) \
@@ -114,8 +111,8 @@ CSRC = $(STARTUPSRC) \
        $(OSALSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
-       $(BOARDSRC) \
-       main.c $(wildcard include/*.c)
+	   $(wildcard include/*.c) $(wildcard $(CONFDIR)/*.c) \
+	   main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -204,7 +201,7 @@ UDEFS =
 UADEFS =
 
 # List all user directories here
-UINCDIR = $(BASE_DIR)/board
+UINCDIR = $(CONFDIR)
 
 # List the user directory to look for the libraries here
 ULIBDIR =
