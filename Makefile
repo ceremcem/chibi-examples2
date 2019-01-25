@@ -115,7 +115,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       main.c $(wildcard includes/*.c)
+       main.c $(wildcard include/*.c)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -204,7 +204,7 @@ UDEFS =
 UADEFS =
 
 # List all user directories here
-UINCDIR = $(BASE_DIR)/board $(BASE_DIR)/foo
+UINCDIR = $(BASE_DIR)/board
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -218,6 +218,7 @@ ULIBS =
 
 RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+
 CLEAN_RULE_HOOK:
 	@rm *.gch 2> /dev/null || true
 	@rm $(CONFDIR)/*.gch 2> /dev/null || true

@@ -22,8 +22,6 @@
  *          This variable is used by the HAL when initializing the PAL driver.
  */
 #if HAL_USE_PAL || defined(__DOXYGEN__)
-#include "digital_io.h"
-
 const PALConfig pal_default_config =
 {
   {VAL_GPIOAODR, VAL_GPIOACRL, VAL_GPIOACRH},
@@ -63,5 +61,8 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 /*
  * Board-specific initialization code.
  */
+
 void boardInit(void) {
+    palSetPadMode(GPIOA, 0, PAL_MODE_INPUT); // see chibios/os/hal/include/hal_pal.h for modes
+    palSetPadMode(GPIOA, 1, PAL_MODE_OUTPUT_PUSHPULL);
 }

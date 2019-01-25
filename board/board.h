@@ -66,45 +66,18 @@
 #define LINE_USB_DISC               PAL_LINE(GPIOC, 11U)
 #define LINE_LED                    PAL_LINE(GPIOC, 12U)
 
-/*
- * I/O ports initial setup, this configuration is established soon after reset
- * in the initialization code.
- *
- * The digits have the following meaning:
- *   0 - Analog input.
- *   1 - Push Pull output 10MHz.
- *   2 - Push Pull output 2MHz.
- *   3 - Push Pull output 50MHz.
- *   4 - Digital input.
- *   5 - Open Drain output 10MHz.
- *   6 - Open Drain output 2MHz.
- *   7 - Open Drain output 50MHz.
- *   8 - Digital input with PullUp or PullDown resistor depending on ODR.
- *   9 - Alternate Push Pull output 10MHz.
- *   A - Alternate Push Pull output 2MHz.
- *   B - Alternate Push Pull output 50MHz.
- *   C - Reserved.
- *   D - Alternate Open Drain output 10MHz.
- *   E - Alternate Open Drain output 2MHz.
- *   F - Alternate Open Drain output 50MHz.
- * Please refer to the STM32 Reference Manual for details.
- */
-
-#define INPUT_ANALOG 			0x0
-#define OUTPUT_PUSHPULL_10MHZ 	0x1
-#define OUTPUT_PUSHPULL_2MHZ  	0x2
-#define OUTPUT_PUSHPULL_50MHZ	0x3
-#define INPUT_DIGITAL 			0x4
-#define OUTPUT_OPEN_DRAIN_10MHZ	0x5
-#define OUTPUT_OPEN_DRAIN_2MHZ	0x6
-#define OUTPUT_OPEN_DRAIN_50MHZ	0x7
 
 /*
- * Port A setup.
+ * Port A setup. (see STM32F103 Reference, 9.2 GPIO registers)
  */
-#define VAL_GPIOACRL            0x00008B44      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x8882BBBB      /* PA15...PA8 */
+//#define VAL_GPIOACRL            0x00008B44      /*  PA7...PA0 */
+//#define VAL_GPIOACRH            0x8882BBBB      /* PA15...PA8 */
+//#define VAL_GPIOAODR            0x00000000
+#define VAL_GPIOACRL            0x44444444      /*  PA7...PA0 */
+#define VAL_GPIOACRH            0x44444444      /* PA15...PA8 */
 #define VAL_GPIOAODR            0x00000000
+
+
 
 /*
  * Port B setup.

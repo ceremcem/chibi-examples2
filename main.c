@@ -111,8 +111,9 @@ static THD_FUNCTION(blink_led, arg) {
     reset_led(led);
 }
 
-void set_fan_speed(uint8_t speed){
-    pwmEnableChannel(&PWMD1, 3, speed);
+void set_motor_speed(uint8_t speed){
+        // PWMD1.1: TIM1_CH3: PA10
+        pwmEnableChannel(&PWMD1, 3, 512);
 }
 
 /* Register callbacks (1/2) */
@@ -163,8 +164,11 @@ int main(void)
 
 	/*pin configurations are done in board.h*/
 	sdStart(&SD2, NULL);
-	pwmStart(&PWMD1, &pwmcfg);
-	adcStart(&ADCD1, &adccfg);
+	pwmStart(&PWMD1, &pwmcfg1);
+
+	//adcStart(&ADCD1, &adccfg);
+    //palSetPadMode(GPIOA, 10, PAL_MODE_ALTERNATE(2));
+
 	gptStart(&GPTD3, &timer_config);
 
 	nvicDisableVector(EXTI0_IRQn);
@@ -181,6 +185,8 @@ int main(void)
     thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
         NORMALPRIO + 1, restart_mb, NULL);
 
+    thread_t *t_ramp = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
+        NORMALPRIO + 1, ramp, NULL);
 
     uint8_t mb_restart_limit = 3;
     uint8_t mb_restart_count = 0;
@@ -194,142 +200,7 @@ int main(void)
 		/* poll the thermometers */
 		gptStartContinuous(&GPTD3, 40000);
 
-		/* expect a message in 30 seconds otherwise reset the board */
-		while(sdReadTimeout(&SD2, buffer, 1,S2ST(30)))
-		{
-            send_length = -1;
-			if(0x2 == buffer[0] && getData(buffer, 0))
-			{
-                // -> 0x02, fcs
-                // <- SOT, 0x02, ODR_hi_byte, ODR_lo_byte, fcs
-                // ---------------------------------------------
-				/*output get */
-                prepareFrame(send_buffer, buffer);
-				send_length = 2;
-                SPLIT_TWO_BYTES(send_buffer, 2, GPIOB->ODR);
-			}
-			else if(0x4 == buffer[0] && getData(buffer, 3))
-			{
-                // -> 0x04, red (0..100), green (0..100), blue (0..100), fcs
-                // <- SOT, 0x04, fcs
-                // ---------------------------------------------
-				/*rgb set */
-                set_rgb(buffer[1], buffer[2], buffer[3]);
-				prepareFrame(send_buffer, buffer);
-				send_length = 0;
-			}
-			else if(0x5 == buffer[0] && getData(buffer, 0))
-			{
-                // -> 0x05, fcs
-                // <- SOT, 0x05, temp[0]_hi, temp[0]_lo,
-                //          temp[1]_hi, temp[1]_lo,
-                //          temp[2]_hi, temp[2]_lo,
-                //          temp[3]_hi, temp[3]_lo, fcs
-                // ---------------------------------------------
-				/*therm get */
-				prepareFrame(send_buffer, buffer);
-				send_length = 8;
-                SPLIT_TWO_BYTES(send_buffer, 2, temp_read[0]);
-                SPLIT_TWO_BYTES(send_buffer, 4, temp_read[1]);
-                SPLIT_TWO_BYTES(send_buffer, 6, temp_read[2]);
-                SPLIT_TWO_BYTES(send_buffer, 8, temp_read[3]); // debugger
-			}
-			else if(0x6 == buffer[0] && getData(buffer, 2))
-			{
-                // -> 0x06, temp_min, temp_max, fcs
-                // <- SOT, 0x06, fcs
-                // ---------------------------------------------
-				// set auto fan speed (and mode)
-                fan_auto = true;
-                temp_min = buffer[1] * 10;
-                temp_max = buffer[2] * 10;
-				prepareFrame(send_buffer, buffer);
-                send_length = 0;
-			}
-            else if(0x7 == buffer[0] && getData(buffer, 1)){
-                // -> 0x07, 0..100 (fan speed), FCS
-                // <- SOT, 0x07, FCS
-                // ---------------------------------------------
-                // set manual fan speed
-                prepareFrame(send_buffer, buffer);
-                send_length = 0;
-                int manual_speed = buffer[1]; //// debugger
-                fan_auto = false;
-				pwmEnableChannel(&PWMD1, 3, manual_speed);/* motor out */
-            }
-            else if(0x8 == buffer[0] && getData(buffer, 1)){
-                // -> 0x08, x, FCS
-                // <- SOT, 0x08, FCS
-                // ---------------------------------------------
-                // stop the scanner led function
-                chThdTerminate(tp_scanner_leds); //// debugger
-                send_length = 0;
-                mb_restart_count = 999;
-                prepareFrame(send_buffer, buffer);
-            }
-            else if(0x9 == buffer[0] && getData(buffer, 1)){
-                // -> 0x09, x, FCS
-                // <- ...
-                // ---------------------------------------------
-                // soft-reset mb
-                palSetPad(GPIOB, 8);
-                chThdSleepMilliseconds(1000);
-                palClearPad(GPIOB, 8);
-
-                // reset the startup heartbeat count
-                mb_restart_count = 0;
-                send_length = -1;
-            }
-            else if(0xA == buffer[0] && getData(buffer, 2)){
-                // -> 0x0a, led number, duration, fcs
-                // <- ...
-                // ---------------------------------------------
-                // blink led
-                uint8_t led_num = buffer[1];
-                uint8_t duration = buffer[2];
-                chThdCreateStatic(wa_blink_led, sizeof(wa_blink_led),
-                    NORMALPRIO + 1, blink_led, buffer);
-                send_length = -1;
-
-            }
-            else if(0xB == buffer[0] && getData(buffer, 2)){
-                // -> 0xb, led number, state, fcs
-                // <- ...
-                // ---------------------------------------------
-                // set led (turn on/off)
-                write_led(buffer[1], buffer[2]);
-                send_length = -1;
-            }
-			else if(0x3 == buffer[0] && getData(buffer, 1))
-			{
-                // -> 0x03, fcs
-                // <- 0x03, pad_num, state, fcs
-                // ---------------------------------------------
-                send_length = -1;
-                buttonEvent(0);
-                buttonEvent(1);
-			}
-			else
-			{
-				/* invalid frame */
-				continue;
-			}
-
-            if (send_length > -1) {
-    			send_length++; // for SOT
-                send_length++; // for TYPE
-    			send_buffer[send_length] = calculateFCS(send_buffer, send_length);
-                send_length++; // for FCS
-    			sdWrite(&SD2, send_buffer, send_length); // debugger
-            }
-		}
-
-        // restart mb
-        if (mb_restart_count < mb_restart_limit){
-            mb_restart_count++;
-            thread_t *t_restart_mb = chThdCreateStatic(wa_restart_mb, sizeof(wa_restart_mb),
-                                               NORMALPRIO + 1, restart_mb, NULL);
-        }
+        set_motor_speed(5000);
 
 		/*stop pwm*/
 		gptStopTimer(&GPTD3);
@@ -343,10 +214,16 @@ int main(void)
 static void buttonEvent(uint8_t pad)
 {
 	uint8_t message[] = {0x03, 0, 0, 0};
-	message[1] = pad; // debugger
+	message[1] = pad; //// debugger
     message[2] = (uint8_t) palReadPad(GPIOA, pad);
 	message[3] = calculateFCS(message,3);
 	sdAsynchronousWrite(&SD2, message, 4);
+
+    if (palReadPad(GPIOA, pad) == 0){ // low/high
+        palClearPad(GPIOA, 1);
+    } else {
+        palSetPad(GPIOA, 1);
+    }
 }
 
 void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
@@ -378,7 +255,6 @@ void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
         else {
             auto_speed = (uint8_t) curr;
         }
-        set_fan_speed(auto_speed);
     }
 }
 
