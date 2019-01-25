@@ -11,15 +11,8 @@
 #define BACKWARD false
 
 /* Function prototypes */
-uint8_t calculateFCS(uint8_t *buffer, uint8_t count);
-uint8_t getData(uint8_t *buffer, uint8_t count);
-void prepareFrame(uint8_t *to_send, uint8_t *received);
-static void timerCallback(GPTDriver *gptp);
-void adcReadCallback(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 static void buttonEvent(uint8_t pad);
 void startMainboard(void);
-extern void restart_mb(void*);
-extern THD_WORKING_AREA(wa_restart_mb, 128);
 extern void set_led(int8_t led_number);
 extern void reset_led(int8_t led_num);
 extern void write_led(uint8_t led_num, bool state);
@@ -27,11 +20,5 @@ extern void set_rgb(uint8_t r, uint8_t g, uint8_t b);
 // ramp worker
 extern THD_WORKING_AREA(wa_ramp, 128);
 extern void ramp(void*);
-
-// Create buffer to store ADC results. This is
-// one-dimensional interleaved array
-#define ADC_BUF_DEPTH 1 // We only read one by one
-#define ADC_CH_COUNT 4    // How many channel you use at same time
-static adcsample_t samples_buf[ADC_BUF_DEPTH * ADC_CH_COUNT]; // results array
 
 #include "board/index.h"
