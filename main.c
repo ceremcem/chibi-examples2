@@ -1,11 +1,6 @@
 
 #include "main.h"
 
-void set_motor_speed(uint8_t speed){
-        // PWMD1.1: TIM1_CH3: PA10
-        pwmEnableChannel(&PWMD1, 3, speed);
-}
-
 /* Register callbacks (1/2) */
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -45,8 +40,7 @@ int main(void)
     //adccg.end_cb = adcReadCallback;
 
 	/*pin configurations are done in board.h*/
-	sdStart(&SD2, NULL);
-	pwmStart(&PWMD1, &pwmcfg1);
+    initializePWM();
 
     thread_t *t_ramp = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
         NORMALPRIO + 1, ramp, NULL);

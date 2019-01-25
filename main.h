@@ -10,15 +10,15 @@
 #define FORWARD true
 #define BACKWARD false
 
-/* Function prototypes */
+/* main.c */
 static void buttonEvent(uint8_t pad);
-void startMainboard(void);
-extern void set_led(int8_t led_number);
-extern void reset_led(int8_t led_num);
-extern void write_led(uint8_t led_num, bool state);
-extern void set_rgb(uint8_t r, uint8_t g, uint8_t b);
-// ramp worker
+
+// ramp.c
 extern THD_WORKING_AREA(wa_ramp, 128);
 extern void ramp(void*);
+
+//board/pwm.c
+extern void initializePWM(void);
+extern void set_motor_speed(uint8_t speed);
 
 #include "board/index.h"
