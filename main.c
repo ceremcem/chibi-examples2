@@ -2,22 +2,17 @@
 #include "main.h"
 
 thread_t * motion_t;
-bool mot = false;
+bool motion_enable = false;
 
 void stop_motion(){
-    //motion_t->flags |= CH_FLAG_TERMINATE;
-    chThdTerminate(motion_t);
-    chThdWait(motion_t);
-    mot = false;
+    //chThdTerminate(motion_t);
+    //chThdWait(motion_t);
+    motion_enable = false;
 }
 
 void start_motion(){
-    if(mot){
-        stop_motion();
-    }
     motion_t = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
         NORMALPRIO + 1, ramp, NULL);
-    mot = true;
 }
 
 void set_dir(bool dir){
@@ -26,12 +21,12 @@ void set_dir(bool dir){
 
 void move_forward(){
     set_dir(FORWARD);
-    start_motion();
+    motion_enable = true;
 }
 
 void move_backward(){
     set_dir(BACKWARD);
-    start_motion();
+    motion_enable = true;
 }
 
 void forward_button(bool pressed){
@@ -44,20 +39,20 @@ void forward_button(bool pressed){
 
 void backward_button(bool pressed){
     if (pressed){
-        //move_backward();
+        move_backward();
     } else {
-        //stop_motion();
+        stop_motion();
     }
 }
 #define FORWARD_BUTTON 0
 #define BACKWARD_BUTTON 1
 
 void button_callback(uint8_t pad){
-    bool state = palReadPad(GPIOA, pad); // debugger
+    bool state = ! palReadPad(GPIOA, pad); //// debugger
     if (pad == FORWARD_BUTTON){
-        //forward_button(state);
+        forward_button(state);
     } else {
-        //backward_button(state);
+        backward_button(state);
     }
 }
 
@@ -96,12 +91,15 @@ int main(void)
 	halInit();
 	chSysInit();
 
+    start_motion();
 
+    /*
     move_forward();
     chThdSleepMilliseconds(1400);
     stop_motion();
     chThdSleepMilliseconds(1400);
     move_backward();
+    */
 
 	/*Main task loop*/
 	while(!0)
