@@ -65,16 +65,17 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 void boardInit(void) {
     palSetPadMode(GPIOA, 0, PAL_MODE_INPUT); // see chibios/os/hal/include/hal_pal.h for modes
     palSetPadMode(GPIOA, 1, PAL_MODE_INPUT);
-    palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL);
-    palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL); // pulse
+    palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL); // dir
+
 
 	/*enable input interrupts*/
 	nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
 	nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
+
     /* to disable:
 	nvicDisableVector(EXTI0_IRQn);
 	nvicDisableVector(EXTI1_IRQn);
     */
-
 
 }

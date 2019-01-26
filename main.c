@@ -1,6 +1,12 @@
 
 #include "main.h"
 
+
+
+void button_callback(){
+    
+}
+
 /* Register callbacks (1/2) */
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
@@ -8,7 +14,8 @@ OSAL_IRQ_HANDLER(Vector58)
     // Vector58 : event for first bit of a port, see chibios
 	OSAL_IRQ_PROLOGUE();
 
-	buttonEvent(0); // debugger
+    button_callback(0); // debugger
+
 	/* Tell you read the interrupt*/
 	EXTI->PR |= 0x00000001U;
 
@@ -22,43 +29,22 @@ OSAL_IRQ_HANDLER(Vector5C)
 
 	OSAL_IRQ_PROLOGUE();
 
-	buttonEvent(1); // debugger
+    button_callback(1); // debugger
+
 	/* Tell you read the interrupt*/
 	EXTI->PR |= 0x00000002U;
 
 	OSAL_IRQ_EPILOGUE();
 }
 
-
 int main(void)
 {
 	halInit();
 	chSysInit();
 
-    /* Register callbacks (2/2) */
-    //timer_config.callback = timerCallback;
-    //adccg.end_cb = adcReadCallback;
-
-	/*pin configurations are done in board.h*/
-    initializePWM();
-
-    thread_t *t_ramp = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
-        NORMALPRIO + 1, ramp, NULL);
-    (void) t_ramp;
-
 	/*Main task loop*/
 	while(!0)
 	{
-        set_motor_speed((uint8_t)512);
         chThdSleepMilliseconds(400);
 	}
-}
-
-static void buttonEvent(uint8_t pad)
-{
-    if (palReadPad(GPIOA, pad) == PAL_LOW){ // low/high
-        palClearPad(GPIOA, 1);
-    } else {
-        palSetPad(GPIOA, 1);
-    }
 }
