@@ -68,6 +68,12 @@ void boardInit(void) {
     palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL); // pulse
     palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL); // dir
 
+	/* VERY IMPORTANT TO ENABLE THE INTERRUPTS */
+	//AFIO->EXTICR[0] &= 0xFFFFFF00; /*set a0 and a1 to external interrupt*/
+	EXTI->IMR |= 0x00000003;	 /*set them as interrupt*/
+	EXTI->EMR &= ~(0x00000003);  /*not event*/
+	EXTI->RTSR |= 0x00000003;    /* Rising edge enable */
+	EXTI->FTSR |= (0x00000003); /* Falling edge enable */
 
 	/*enable input interrupts*/
 	nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);

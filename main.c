@@ -1,11 +1,59 @@
 
 #include "main.h"
 
+thread_t * motion_t;
 
-
-void button_callback(){
-    
+start_motion(){
+    motion_t = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
+        NORMALPRIO + 1, ramp, NULL);
 }
+
+void stop_motion(){
+    motion_t->flags |= CH_FLAG_TERMINATE;
+    chThdWait(motion_t);
+}
+
+void set_dir(bool dir){
+    palWritePad(GPIOA, 3, dir);
+}
+
+void move_forward(){
+    set_dir(FORWARD);
+    start_motion();
+}
+
+void move_backward(){
+    set_dir(BACKWARD);
+    start_motion();
+}
+
+void forward_button(bool pressed){
+    if (pressed){
+        //move_forward();
+    } else {
+        //stop_motion();
+    }
+}
+
+void backward_button(bool pressed){
+    if (pressed){
+        //move_backward();
+    } else {
+        //stop_motion();
+    }
+}
+#define FORWARD_BUTTON 0
+#define BACKWARD_BUTTON 1
+
+void button_callback(uint8_t pad){
+    bool state = palReadPad(GPIOA, pad); // debugger
+    if (pad == FORWARD_BUTTON){
+        forward_button(state);
+    } else {
+        backward_button(state);
+    }
+}
+
 
 /* Register callbacks (1/2) */
 #define STM32_DISABLE_EXTI0_HANDLER
