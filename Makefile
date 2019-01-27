@@ -89,13 +89,15 @@ PROJECT = ch
 MCU  = cortex-m3
 
 # Imported source files and paths.
-# Imported source files and paths
-BASE_DIR := ${CURDIR}
-#CHIBIOS = $(BASE_DIR)/chibios
-CHIBIOS := ~/ChibiOS
-CONFDIR := $(BASE_DIR)/cfg
+CHIBIOS  := $(HOME)/ChibiOS
+CONFDIR  := ./cfg
 BUILDDIR := ./build
 DEPDIR   := ./.dep
+
+SRCEXT := c
+SRCDIR := $(CURDIR)/include
+SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+ALLCSRC += $(SRCS)
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -124,7 +126,6 @@ LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
        main.c
-	   #$(wildcard include/*.c) $(wildcard $(CONFDIR)/*.c) \
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -180,11 +181,23 @@ RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk
 include $(RULESPATH)/arm-none-eabi.mk
 include $(RULESPATH)/rules.mk
 
-ACLEAN_RULE_HOOK:
-	@echo "Cleanup hook.22"
-	@rm *.gch 2> /dev/null || true
-	@rm $(CONFDIR)/*.gch 2> /dev/null || true
-	@rm $(BASE_DIR)/_breakpoints.txt 2> /dev/null || true
-	@rm $(BASE_DIR)/core 2> /dev/null || true
+#
+# Common rules
+##############################################################################
+
+##############################################################################
+# Custom rules
+#
+
+#
+# Custom rules
+##############################################################################
+
+CLEAN_RULE_HOOK:
+	@echo "Cleanup hook..."
+	@echo
+	@find $(CURDIR) -iname '*.gch' -exec rm {} \;
+	@rm $(CURDIR)/_breakpoints.txt 2> /dev/null || true
+	@rm $(CURDIR)/core 2> /dev/null || true
 
 include ./mcu-debug/main.mk
