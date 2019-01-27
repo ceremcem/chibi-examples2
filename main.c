@@ -19,27 +19,39 @@ void set_dir(bool dir){
     palWritePad(GPIOA, DIR_OUT, dir);
 }
 
-void move_forward(){
-    set_dir(FORWARD);
-    motion_enable = true;
+bool reached_top(){
+    return ! palReadPad(GPIOA, UPPER_LIMIT_SWITCH);
 }
 
-void move_backward(){
-    set_dir(BACKWARD);
-    motion_enable = true;
+bool reached_bottom(){
+    return ! palReadPad(GPIOA, LOWER_LIMIT_SWITCH);
 }
 
-void forward_button(bool pressed){
+void move_up(){
+    if (! reached_top()){
+        set_dir(UPWARD);
+        motion_enable = true;
+    }
+}
+
+void move_down(){
+    if (! reached_bottom()){
+        set_dir(DOWNWARD);
+        motion_enable = true;
+    }
+}
+
+void UPWARD_button(bool pressed){
     if (pressed){
-        move_forward();
+        move_up();
     } else {
         stop_motion();
     }
 }
 
-void backward_button(bool pressed){
+void DOWNWARD_button(bool pressed){
     if (pressed){
-        move_backward();
+        move_down();
     } else {
         stop_motion();
     }
@@ -47,16 +59,16 @@ void backward_button(bool pressed){
 
 void button_callback(uint8_t pad){
     bool state = ! palReadPad(GPIOA, pad);
-    if (pad == FORWARD_BUTTON){
-        forward_button(state);
+    if (pad == UPWARD_BUTTON){
+        UPWARD_button(state);
     } else {
-        backward_button(state);
+        DOWNWARD_button(state);
     }
 }
 
 void limit_switch(uint8_t pad){
     bool state = ! palReadPad(GPIOA, pad);
-
+    
     if (state == PAL_HIGH){
         stop_motion();
     }

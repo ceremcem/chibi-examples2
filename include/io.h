@@ -1,5 +1,5 @@
-#define FORWARD_BUTTON 0
-#define BACKWARD_BUTTON 1
+#define UPWARD_BUTTON 0
+#define DOWNWARD_BUTTON 1
 #define PULSE_OUT 2
 #define DIR_OUT 3
 #define LOWER_LIMIT_SWITCH 4
