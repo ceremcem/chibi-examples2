@@ -46,11 +46,5 @@ void __early_init(void) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-    // see chibios/os/hal/include/hal_pal.h for modes
-    palSetPadMode(GPIOA, 0, PAL_MODE_INPUT);
-    //palSetPadMode(GPIOA, 1, PAL_MODE_INPUT);
-    palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL); // pulse
-    palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL); // dir
-    palSetPadMode(GPIOB, 0, PAL_MODE_INPUT);
-    palSetPadMode(GPIOB, 1, PAL_MODE_INPUT);
+
 }

@@ -1,4 +1,3 @@
-
 #include "main.h"
 
 thread_t * motion_t;
@@ -56,42 +55,12 @@ void button_callback(uint8_t pad){
     }
 }
 
-/* Register callbacks (1/2) */
-#define STM32_DISABLE_EXTI0_HANDLER
-OSAL_IRQ_HANDLER(Vector58)
-{
-    // Vector58 : event for 1st bit of a port, see chibios
-	OSAL_IRQ_PROLOGUE();
-
-    button_callback(0);
-
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000001U;
-
-	OSAL_IRQ_EPILOGUE();
-}
-
-#define STM32_DISABLE_EXTI1_HANDLER
-OSAL_IRQ_HANDLER(Vector5C)
-{
-    // Vector5C: event for 2nd bit of a port, see chibios
-
-	OSAL_IRQ_PROLOGUE();
-
-    button_callback(1);
-
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000002U;
-
-	OSAL_IRQ_EPILOGUE();
-}
-
-
 int main(void)
 {
 	halInit();
 	chSysInit();
 
+    init_io();
     start_motion();
 
 	/*Main task loop*/
