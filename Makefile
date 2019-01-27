@@ -220,5 +220,6 @@ CLEAN_RULE_HOOK:
 	@rm *.gch 2> /dev/null || true
 	@rm $(CONFDIR)/*.gch 2> /dev/null || true
 	@rm $(BASE_DIR)/_breakpoints.txt 2> /dev/null || true
+	@rm $(BASE_DIR)/core 2> /dev/null || true
 
 include ./mcu-debug/main.mk
