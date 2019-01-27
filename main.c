@@ -48,7 +48,7 @@ void backward_button(bool pressed){
 #define BACKWARD_BUTTON 1
 
 void button_callback(uint8_t pad){
-    bool state = ! palReadPad(GPIOA, pad); //// debugger
+    bool state = ! palReadPad(GPIOA, pad);
     if (pad == FORWARD_BUTTON){
         forward_button(state);
     } else {
@@ -60,7 +60,7 @@ void button_callback(uint8_t pad){
 #define STM32_DISABLE_EXTI0_HANDLER
 OSAL_IRQ_HANDLER(Vector58)
 {
-    // Vector58 : event for first bit of a port, see chibios
+    // Vector58 : event for 1st bit of a port, see chibios
 	OSAL_IRQ_PROLOGUE();
 
     button_callback(0);
@@ -74,7 +74,7 @@ OSAL_IRQ_HANDLER(Vector58)
 #define STM32_DISABLE_EXTI1_HANDLER
 OSAL_IRQ_HANDLER(Vector5C)
 {
-    // Vector5C: event for second bit of a port, see chibios
+    // Vector5C: event for 2nd bit of a port, see chibios
 
 	OSAL_IRQ_PROLOGUE();
 
@@ -86,20 +86,13 @@ OSAL_IRQ_HANDLER(Vector5C)
 	OSAL_IRQ_EPILOGUE();
 }
 
+
 int main(void)
 {
 	halInit();
 	chSysInit();
 
     start_motion();
-
-    /*
-    move_forward();
-    chThdSleepMilliseconds(1400);
-    stop_motion();
-    chThdSleepMilliseconds(1400);
-    move_backward();
-    */
 
 	/*Main task loop*/
 	while(!0)
