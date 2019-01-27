@@ -1,5 +1,5 @@
-
 #include "main.h"
+#include "io.h"
 
 thread_t * motion_t;
 bool motion_enable = false;
@@ -16,82 +16,70 @@ void start_motion(){
 }
 
 void set_dir(bool dir){
-    palWritePad(GPIOA, 3, dir);
+    palWritePad(GPIOA, DIR_OUT, dir);
 }
 
-void move_forward(){
-    set_dir(FORWARD);
-    motion_enable = true;
+bool reached_top(){
+    return ! palReadPad(GPIOA, UPPER_LIMIT_SWITCH);
 }
 
-void move_backward(){
-    set_dir(BACKWARD);
-    motion_enable = true;
+bool reached_bottom(){
+    return ! palReadPad(GPIOA, LOWER_LIMIT_SWITCH);
 }
 
-void forward_button(bool pressed){
+void move_up(){
+    if (! reached_top()){
+        set_dir(UPWARD);
+        motion_enable = true;
+    }
+}
+
+void move_down(){
+    if (! reached_bottom()){
+        set_dir(DOWNWARD);
+        motion_enable = true;
+    }
+}
+
+void UPWARD_button(bool pressed){
     if (pressed){
-        move_forward();
+        move_up();
     } else {
         stop_motion();
     }
 }
 
-void backward_button(bool pressed){
+void DOWNWARD_button(bool pressed){
     if (pressed){
-        move_backward();
+        move_down();
     } else {
         stop_motion();
     }
 }
-#define FORWARD_BUTTON 0
-#define BACKWARD_BUTTON 1
 
 void button_callback(uint8_t pad){
     bool state = ! palReadPad(GPIOA, pad);
-    if (pad == FORWARD_BUTTON){
-        forward_button(state);
+    if (pad == UPWARD_BUTTON){
+        UPWARD_button(state);
     } else {
-        backward_button(state);
+        DOWNWARD_button(state);
     }
 }
 
-/* Register callbacks (1/2) */
-#define STM32_DISABLE_EXTI0_HANDLER
-OSAL_IRQ_HANDLER(Vector58)
-{
-    // Vector58 : event for 1st bit of a port, see chibios
-	OSAL_IRQ_PROLOGUE();
-
-    button_callback(0);
-
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000001U;
-
-	OSAL_IRQ_EPILOGUE();
+void limit_switch(uint8_t pad){
+    bool state = ! palReadPad(GPIOA, pad);
+    
+    if (state == PAL_HIGH){
+        stop_motion();
+    }
 }
-
-#define STM32_DISABLE_EXTI1_HANDLER
-OSAL_IRQ_HANDLER(Vector5C)
-{
-    // Vector5C: event for 2nd bit of a port, see chibios
-
-	OSAL_IRQ_PROLOGUE();
-
-    button_callback(1);
-
-	/* Tell you read the interrupt*/
-	EXTI->PR |= 0x00000002U;
-
-	OSAL_IRQ_EPILOGUE();
-}
-
 
 int main(void)
 {
 	halInit();
 	chSysInit();
 
+    init_io();
     start_motion();
 
 	/*Main task loop*/

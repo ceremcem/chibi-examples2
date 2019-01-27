@@ -7,8 +7,9 @@
 #define MERGE_TWO_BYTES(a, b)                   ((a << 8) + b)
 #define SPLIT_TWO_BYTES(target, index, src)     target[index] = ((src & 0xff00) >> 8); target[index+1] = (src & 0xff);
 #define GET_BIT(source, bit_num) ((source >> bit_num) & 0x01)
-#define FORWARD true
-#define BACKWARD false
+
+#define UPWARD true
+#define DOWNWARD false
 
 /* main.c */
 static void buttonEvent(uint8_t pad);

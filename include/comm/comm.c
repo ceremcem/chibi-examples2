@@ -1,3 +1,5 @@
+#include "ch.h"
+
 uint8_t calculateFCS(uint8_t *buffer, uint8_t count)
 {
 	uint8_t val, i;

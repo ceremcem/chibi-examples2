@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ const PALConfig pal_default_config =
 };
 #endif
 
-
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
@@ -43,50 +42,9 @@ void __early_init(void) {
   stm32_clock_init();
 }
 
-#if HAL_USE_MMC_SPI
-/* Board-related functions related to the MMC_SPI driver.*/
-bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
-
-  (void)mmcp;
-  return palReadPad(GPIOC, GPIOC_MMCCP);
-}
-
-bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
-
-  (void)mmcp;
-  return !palReadPad(GPIOC, GPIOC_MMCWP);
-}
-#endif
-
 /*
  * Board-specific initialization code.
  */
-
 void boardInit(void) {
-    // see chibios/os/hal/include/hal_pal.h for modes
-    palSetPadMode(GPIOA, 0, PAL_MODE_INPUT);
-    palSetPadMode(GPIOA, 1, PAL_MODE_INPUT);
-    palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL); // pulse
-    palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL); // dir
-    palSetPadMode(GPIOB, 0, PAL_MODE_INPUT);
-    palSetPadMode(GPIOB, 1, PAL_MODE_INPUT);
-
-	/* VERY IMPORTANT TO ENABLE THE INTERRUPTS */
-    /* HOW TO VERIFY: Comment out this section, load to MCU, and RESET the mcu with its RESET button */
-	//AFIO->EXTICR[0] &= 0xFFFFFF00; //set a0 and a1 to external interrupt
-	EXTI->IMR |= 0x00000003;	 // set them as interrupt
-	EXTI->EMR &= ~(0x00000003);  // not event
-	EXTI->RTSR |= 0x00000003;    // Rising edge enable
-	EXTI->FTSR |= (0x00000003);  // Falling edge enable
-
-	/*enable input interrupts*/
-	//nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
-	//nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
-	//nvicEnableVector(EXTI3_IRQn, STM32_EXT_EXTI3_IRQ_PRIORITY);
-
-    /* to disable:
-	nvicDisableVector(EXTI0_IRQn);
-	nvicDisableVector(EXTI1_IRQn);
-    */
 
 }

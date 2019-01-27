@@ -1,8 +1,10 @@
 # List of all the board related files.
-BOARDSRC = ./board.c
+THIS_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+BOARDSRC = $(THIS_DIR)/board.c
 
 # Required include directories
-BOARDINC = ./include
+BOARDINC = $(THIS_DIR)
 
 # Shared variables
 ALLCSRC += $(BOARDSRC)
