@@ -96,8 +96,9 @@ DEPDIR   := ./.dep
 
 SRCEXT := c
 SRCDIR := $(CURDIR)/include
-SRCS    := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+SRCS   := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
 ALLCSRC += $(SRCS)
+ALLCSRC += $(CONFDIR)/board.c
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -188,16 +189,7 @@ include $(RULESPATH)/rules.mk
 ##############################################################################
 # Custom rules
 #
-
+include ./aea.mk
 #
 # Custom rules
 ##############################################################################
-
-CLEAN_RULE_HOOK:
-	@echo "Cleanup hook..."
-	@echo
-	@find $(CURDIR) -iname '*.gch' -exec rm {} \;
-	@rm $(CURDIR)/_breakpoints.txt 2> /dev/null || true
-	@rm $(CURDIR)/core 2> /dev/null || true
-
-include ./mcu-debug/main.mk
