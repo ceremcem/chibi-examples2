@@ -95,7 +95,9 @@ DEPDIR   := ./.dep
 SRCEXT := c
 SRCDIR := $(CURDIR)/include
 SRCS   := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
+SRCINC := $(shell find $(SRCDIR) -type d)
 ALLCSRC += $(SRCS)
+ALLINC += $(SRCINC)
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk

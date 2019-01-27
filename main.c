@@ -1,4 +1,5 @@
 #include "main.h"
+#include "io.h"
 
 thread_t * motion_t;
 bool motion_enable = false;
@@ -15,7 +16,7 @@ void start_motion(){
 }
 
 void set_dir(bool dir){
-    palWritePad(GPIOA, 3, dir);
+    palWritePad(GPIOA, DIR_OUT, dir);
 }
 
 void move_forward(){
@@ -43,8 +44,6 @@ void backward_button(bool pressed){
         stop_motion();
     }
 }
-#define FORWARD_BUTTON 0
-#define BACKWARD_BUTTON 1
 
 void button_callback(uint8_t pad){
     bool state = ! palReadPad(GPIOA, pad);
@@ -52,6 +51,14 @@ void button_callback(uint8_t pad){
         forward_button(state);
     } else {
         backward_button(state);
+    }
+}
+
+void limit_switch(uint8_t pad){
+    bool state = ! palReadPad(GPIOA, pad);
+
+    if (state == PAL_HIGH){
+        stop_motion();
     }
 }
 
