@@ -1,5 +1,5 @@
 /*
-    ChibiOS - Copyright (C) 2006..2018 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2017 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@
 #define CHCONF_H
 
 #define _CHIBIOS_RT_CONF_
-#define _CHIBIOS_RT_CONF_VER_6_0_
+#define _CHIBIOS_RT_CONF_VER_5_1_
 
 /*===========================================================================*/
 /**
@@ -360,7 +360,7 @@
 #endif
 
 /**
- * @brief   Objects FIFOs APIs.
+ * @brief  Objects FIFOs APIs.
  * @details If enabled then the objects FIFOs APIs are included
  *          in the kernel.
  *
@@ -368,17 +368,6 @@
  */
 #if !defined(CH_CFG_USE_OBJ_FIFOS)
 #define CH_CFG_USE_OBJ_FIFOS                TRUE
-#endif
-
-/**
- * @brief   Pipes APIs.
- * @details If enabled then the pipes APIs are included
- *          in the kernel.
- *
- * @note    The default is @p TRUE.
- */
-#if !defined(CH_CFG_USE_PIPES)
-#define CH_CFG_USE_PIPES                    TRUE
 #endif
 
 /**
@@ -458,13 +447,6 @@
 #define CH_CFG_FACTORY_OBJ_FIFOS            TRUE
 #endif
 
-/**
- * @brief   Enables factory for Pipes.
- */
-#if !defined(CH_CFG_FACTORY_PIPES) || defined(__DOXYGEN__)
-#define CH_CFG_FACTORY_PIPES                TRUE
-#endif
-
 /** @} */
 
 /*===========================================================================*/
@@ -491,7 +473,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_SYSTEM_STATE_CHECK)
-#define CH_DBG_SYSTEM_STATE_CHECK           TRUE
+#define CH_DBG_SYSTEM_STATE_CHECK           FALSE
 #endif
 
 /**
@@ -502,7 +484,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_DBG_ENABLE_CHECKS)
-#define CH_DBG_ENABLE_CHECKS                TRUE
+#define CH_DBG_ENABLE_CHECKS                FALSE
 #endif
 
 /**

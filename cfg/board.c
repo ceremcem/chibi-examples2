@@ -48,28 +48,9 @@ void __early_init(void) {
 void boardInit(void) {
     // see chibios/os/hal/include/hal_pal.h for modes
     palSetPadMode(GPIOA, 0, PAL_MODE_INPUT);
-    palSetPadMode(GPIOA, 1, PAL_MODE_INPUT);
+    //palSetPadMode(GPIOA, 1, PAL_MODE_INPUT);
     palSetPadMode(GPIOA, 2, PAL_MODE_OUTPUT_PUSHPULL); // pulse
     palSetPadMode(GPIOA, 3, PAL_MODE_OUTPUT_PUSHPULL); // dir
     palSetPadMode(GPIOB, 0, PAL_MODE_INPUT);
     palSetPadMode(GPIOB, 1, PAL_MODE_INPUT);
-
-    /* VERY IMPORTANT TO ENABLE THE INTERRUPTS */
-    /* HOW TO VERIFY: Comment out this section, load to MCU, and RESET the mcu with its RESET button */
-    //AFIO->EXTICR[0] &= 0xFFFFFF00; //set a0 and a1 to external interrupt
-    EXTI->IMR |= 0x00000003;         // set them as interrupt
-    EXTI->EMR &= ~(0x00000003);  // not event
-    EXTI->RTSR |= 0x00000003;    // Rising edge enable
-    EXTI->FTSR |= (0x00000003);  // Falling edge enable
-
-    /*enable input interrupts*/
-    //nvicEnableVector(EXTI0_IRQn, STM32_EXT_EXTI0_IRQ_PRIORITY);
-    //nvicEnableVector(EXTI1_IRQn, STM32_EXT_EXTI1_IRQ_PRIORITY);
-    //nvicEnableVector(EXTI3_IRQn, STM32_EXT_EXTI3_IRQ_PRIORITY);
-
-    /* to disable:
-    nvicDisableVector(EXTI0_IRQn);
-    nvicDisableVector(EXTI1_IRQn);
-    */
-
 }
