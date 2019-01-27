@@ -20,5 +20,3 @@ extern void ramp(void*);
 //board/pwm.c
 //extern void initializePWM(void);
 //extern void set_motor_speed(uint8_t speed);
-
-#include "board/index.h"
