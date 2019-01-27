@@ -22,9 +22,9 @@ THD_FUNCTION(ramp, arg) {
 
         if (motion_enable){
             palSetPad(GPIOA, 2);
-        	chThdSleepMicroseconds(100 + offset);
+        	chThdSleepMicroseconds(50 + offset);
             palClearPad(GPIOA, 2);
-        	chThdSleepMicroseconds(100 + offset);
+        	chThdSleepMicroseconds(50 + offset);
         } else {
             chThdSleepMilliseconds(1);
         }
