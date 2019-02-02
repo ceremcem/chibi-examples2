@@ -7,7 +7,8 @@ extern bool motion_enable;
 THD_WORKING_AREA(wa_ramp, 128);
 THD_FUNCTION(ramp, arg) {
     (void) arg;
-    const int period_offset = 300;
+    const int period = 100; // main period (optimum value: 50)
+    const int period_offset = 600;
     int offset = period_offset;
     bool motion_enable0 = false;
 
@@ -23,9 +24,9 @@ THD_FUNCTION(ramp, arg) {
 
         if (motion_enable){
             palSetPad(GPIOA, PULSE_OUT);
-        	chThdSleepMicroseconds(50 + offset);
+        	chThdSleepMicroseconds(period + offset);
             palClearPad(GPIOA, PULSE_OUT);
-        	chThdSleepMicroseconds(50 + offset);
+        	chThdSleepMicroseconds(period + offset);
         } else {
             chThdSleepMilliseconds(1);
         }
