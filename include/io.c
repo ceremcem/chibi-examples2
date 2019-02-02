@@ -2,7 +2,7 @@
 #include "io.h"
 
 extern void button_callback(uint8_t pad);
-extern void limit_switch();
+extern void limit_switch(uint8_t pad);
 
 THD_WORKING_AREA(wa_poll_switches, 128);
 THD_FUNCTION(poll_switches, arg) {
@@ -25,7 +25,7 @@ THD_FUNCTION(poll_switches, arg) {
     }
 }
 
-void init_io(){
+void init_io(void){
     // pulse out
     palSetPadMode(GPIOA, PULSE_OUT, PAL_MODE_OUTPUT_PUSHPULL);
 

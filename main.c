@@ -4,6 +4,22 @@
 thread_t * motion_t;
 bool motion_enable = false;
 
+
+int main(void)
+{
+	halInit();
+	chSysInit();
+
+    init_io();
+    start_motion();
+
+	/*Main task loop*/
+	while(!0)
+	{
+        chThdSleepMilliseconds(1400);
+	}
+}
+
 void stop_motion(){
     //chThdTerminate(motion_t);
     //chThdWait(motion_t);
@@ -16,7 +32,12 @@ void start_motion(){
 }
 
 void set_dir(bool dir){
-    palWritePad(GPIOA, DIR_OUT, dir);
+    if (dir == TRUE){
+        palSetPad(GPIOA, DIR_OUT);
+    } else {
+        palClearPad(GPIOA, DIR_OUT);
+    }
+    //palWritePad(GPIOA, DIR_OUT, dir);
 }
 
 bool reached_top(){
@@ -68,23 +89,8 @@ void button_callback(uint8_t pad){
 
 void limit_switch(uint8_t pad){
     bool state = ! palReadPad(GPIOA, pad);
-    
+
     if (state == PAL_HIGH){
         stop_motion();
     }
-}
-
-int main(void)
-{
-	halInit();
-	chSysInit();
-
-    init_io();
-    start_motion();
-
-	/*Main task loop*/
-	while(!0)
-	{
-        chThdSleepMilliseconds(400);
-	}
 }

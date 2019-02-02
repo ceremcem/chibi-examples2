@@ -12,12 +12,21 @@
 #define DOWNWARD false
 
 /* main.c */
-static void buttonEvent(uint8_t pad);
+void stop_motion(void);
+void start_motion(void);
+void set_dir(bool dir);
+bool reached_top(void);
+bool reached_bottom(void);
+void move_up(void);
+void move_down(void);
+void UPWARD_button(bool pressed);
+void DOWNWARD_button(bool pressed);
+void button_callback(uint8_t pad);
+void limit_switch(uint8_t pad);
 
 // ramp.c
 extern THD_WORKING_AREA(wa_ramp, 128);
 extern void ramp(void*);
 
-//board/pwm.c
-//extern void initializePWM(void);
-//extern void set_motor_speed(uint8_t speed);
+//io.c
+void init_io(void);
