@@ -5,6 +5,24 @@ thread_t * motion_t;
 bool motion_enable = false;
 
 
+static PWMConfig pwmcfg = {
+	2000000, /* 200Khz PWM clock frequency*/
+	100, /* PWM period of 1024 ticks ~ 0.005 second */
+	NULL, /* No callback */
+
+	/* Only channel 1 enabled */
+	{
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
+	},
+    0,
+    0
+};
+
+
+
 int main(void)
 {
 	halInit();
@@ -12,6 +30,21 @@ int main(void)
 
     init_io();
     start_motion();
+
+    pwmStart(&PWMD3, &pwmcfg);
+    uint8_t duty = 50;
+
+    // configure PB1 as PWM3/4
+    // set GPIOB_CRL -> CNF1 & MODE1
+    // CNF1: 10 (alternate function output) & MODE1: 11 (50 MHz)
+    // CNF1_MODE1: 0b1011
+    uint32_t x = GPIOB->CRL;
+    x &= 0xffffff0f;
+    x |= (0b1011 << 4);
+    GPIOB->CRL = x;
+
+    pwmEnableChannel(&PWMD3, 3, PWM_PERCENTAGE_TO_WIDTH (&PWMD3, 5000));
+
 
 	/*Main task loop*/
 	while(!0)
@@ -28,7 +61,7 @@ void stop_motion(){
 
 void start_motion(){
     motion_t = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
-        NORMALPRIO + 1, ramp, NULL);
+        HIGHPRIO, ramp, NULL);
 }
 
 void set_dir(bool dir){
@@ -79,7 +112,7 @@ void DOWNWARD_button(bool pressed){
 }
 
 void button_callback(uint8_t pad){
-    bool state = ! palReadPad(GPIOA, pad);
+    bool state = ! palReadPad(GPIOA, pad); //// debugger
     if (pad == UPWARD_BUTTON){
         UPWARD_button(state);
     } else {
