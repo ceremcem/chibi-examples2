@@ -1,71 +1,21 @@
-/*
-    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
-
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
 /*
- * Setup for the Olimex STM32-P103 proto board.
- */
-
-/*
- * Board identifier.
- */
-#define BOARD_OLIMEX_STM32_P103
-#define BOARD_NAME              "STM32F103C8T6"
-
-/*
- * Board frequencies.
- */
-#define STM32_LSECLK            32768
-#define STM32_HSECLK            8000000
-
-/*
- * MCU type, supported types are defined in ./os/hal/platforms/hal_lld.h.
+ * MCU type, supported types are defined in ChibiOS/os/hal/platforms/hal_lld.h.
  */
 #define STM32F103xB
 
 /*
  * IO pins assignments.
  */
-#define GPIOA_BUTTON            0
-#define GPIOA_SPI1NSS           4
-
-#define GPIOB_SPI2NSS           12
-
-#define GPIOC_USB_P             4
-#define GPIOC_MMCWP             6
-#define GPIOC_MMCCP             7
-#define GPIOC_CAN_CNTL          10
-#define GPIOC_USB_DISC          11
-#define GPIOC_LED               12
-
-/*
- * IO lines assignments.
- */
-#define LINE_BUTTON                 PAL_LINE(GPIOA, 0U)
-#define LINE_SPI1NSS                PAL_LINE(GPIOA, 4U)
-#define LINE_SPI2NSS                PAL_LINE(GPIOB, 12U)
-#define LINE_USB_P                  PAL_LINE(GPIOC, 4U)
-#define LINE_MMCWP                  PAL_LINE(GPIOC, 6U)
-#define LINE_MMCCP                  PAL_LINE(GPIOC, 7U)
-#define LINE_CAN_CNTL               PAL_LINE(GPIOC, 10U)
-#define LINE_USB_DISC               PAL_LINE(GPIOC, 11U)
-#define LINE_LED                    PAL_LINE(GPIOC, 12U)
-
+/* GPIOA */
+#define PULSE_OUT               0u
+#define DIR_OUT                 1u
+#define UPWARD_BUTTON           2u
+#define DOWNWARD_BUTTON         3u
+#define LOWER_LIMIT_SWITCH      4u
+#define UPPER_LIMIT_SWITCH      5u
 
 /*
  * Port A setup. (see STM32F103 Reference, 9.2 GPIO registers)

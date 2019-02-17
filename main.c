@@ -4,24 +4,17 @@
 thread_t * motion_t;
 bool motion_enable = false;
 
-
 static PWMConfig pwmcfg = {
-	2000000, /* 200Khz PWM clock frequency*/
-	100, /* PWM period of 1024 ticks ~ 0.005 second */
-	NULL, /* No callback */
-
-	/* Only channel 1 enabled */
-	{
+	frequency: 2000000,   // PWM clock frequency
+	period: 100,       // PWM resolution (overall PWM signal frequency: PCF/PR)
+	callback: NULL,      // No callback
+	channels: {
 		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
-	},
-    0,
-    0
+		{PWM_OUTPUT_DISABLED, NULL},
+		{PWM_OUTPUT_DISABLED, NULL},
+		{PWM_OUTPUT_DISABLED, NULL}
+	}
 };
-
-
 
 int main(void)
 {
@@ -32,7 +25,6 @@ int main(void)
     start_motion();
 
     pwmStart(&PWMD3, &pwmcfg);
-    uint8_t duty = 50;
 
     // configure PB1 as PWM3/4
     // set GPIOB_CRL -> CNF1 & MODE1

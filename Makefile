@@ -82,22 +82,7 @@ endif
 # Project, sources and paths
 #
 
-# Define project name here
-PROJECT = ch
-
-# Imported source files and paths.
-CHIBIOS  := $(HOME)/ChibiOS
-CONFDIR  := ./cfg
-BUILDDIR := ./build
-DEPDIR   := ./.dep
-
-# Dynamically import all source files under ./include
-SRCEXT := c
-SRCDIR := $(CURDIR)/include
-SRCS   := $(shell find $(SRCDIR) -name '*.$(SRCEXT)')
-SRCINC := $(shell find $(SRCDIR) -type d)
-ALLCSRC += $(SRCS)
-ALLINC += $(SRCINC)
+include aea_pre.mk
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -231,7 +216,7 @@ include $(RULESPATH)/rules.mk
 ##############################################################################
 # Custom rules
 #
-include ./aea.mk
+include ./aea_post.mk
 #
 # Custom rules
 ##############################################################################
