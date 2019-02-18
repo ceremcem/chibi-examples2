@@ -86,11 +86,8 @@ include aea_pre.mk
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
-# Startup files.
-include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.mk
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/ports/STM32/STM32F1xx/platform.mk
 include $(CONFDIR)/board.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 # RTOS files (optional).
@@ -100,9 +97,6 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 include $(CHIBIOS)/test/lib/test.mk
 include $(CHIBIOS)/test/rt/rt_test.mk
 include $(CHIBIOS)/test/oslib/oslib_test.mk
-
-# Define linker script file here
-LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

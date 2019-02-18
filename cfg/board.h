@@ -4,7 +4,8 @@
 /*
  * MCU type, supported types are defined in ChibiOS/os/hal/platforms/hal_lld.h.
  */
-#define STM32F103xB
+//#define STM32F103xB
+#define STM32F103xB // STM32F030F4P6
 
 /*
  * IO pins assignments.

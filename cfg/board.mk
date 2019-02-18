@@ -9,3 +9,5 @@ BOARDINC = $(THIS_DIR)
 # Shared variables
 ALLCSRC += $(BOARDSRC)
 ALLINC  += $(BOARDINC)
+
+include $(THIS_DIR)/mcuconf.mk
