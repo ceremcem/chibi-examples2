@@ -9,10 +9,10 @@ static PWMConfig pwmcfg = {
 	period: 100,       // PWM resolution (overall PWM signal frequency: PCF/PR)
 	callback: NULL,      // No callback
 	channels: {
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL},
 		{PWM_OUTPUT_DISABLED, NULL},
 		{PWM_OUTPUT_DISABLED, NULL},
-		{PWM_OUTPUT_DISABLED, NULL}
+		{PWM_OUTPUT_DISABLED, NULL},
+		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
 	}
 };
 
@@ -35,7 +35,7 @@ int main(void)
     x |= (0b1011 << 4);
     GPIOB->CRL = x;
 
-    pwmEnableChannel(&PWMD3, 3, PWM_PERCENTAGE_TO_WIDTH (&PWMD3, 5000));
+    pwmEnableChannel(&PWMD3, 3, PWM_PERCENTAGE_TO_WIDTH (&PWMD3, 3000));
 
 
 	/*Main task loop*/
