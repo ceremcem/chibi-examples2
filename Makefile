@@ -82,7 +82,7 @@ endif
 # Project, sources and paths
 #
 
-include aea_pre.mk
+include aea.mk
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
@@ -210,7 +210,7 @@ include $(RULESPATH)/rules.mk
 ##############################################################################
 # Custom rules
 #
-include ./aea_post.mk
+
 #
 # Custom rules
 ##############################################################################
