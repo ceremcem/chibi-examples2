@@ -31,7 +31,7 @@ int main(void)
     // CNF1: 10 (alternate function output) & MODE1: 11 (50 MHz)
     // CNF1_MODE1: 0b1011
     uint32_t x = GPIOB->CRL;
-    x &= 0xffffff0f;
+    x &= ~(0xf << 4); // clear the tuple
     x |= (0b1011 << 4);
     GPIOB->CRL = x;
 
