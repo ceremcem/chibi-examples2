@@ -1,0 +1,8 @@
+build/
+.dep/
+_breakpoints.txt
+
+core
+*.gch
+
+chibios/doc
