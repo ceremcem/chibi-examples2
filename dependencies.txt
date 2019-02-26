@@ -1,1 +1,2 @@
 ChibiOS/stable_18.2.x 903263a2c7467204f84df164efe0a1ca0028bbde
+GCC 8.2.0
