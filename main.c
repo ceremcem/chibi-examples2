@@ -3,6 +3,7 @@
 /*
  * Red LED blinker thread, times are in milliseconds.
  */
+/*
 static THD_WORKING_AREA(waThread1, 128);
 static THD_FUNCTION(Thread1, arg) {
   (void)arg;
@@ -13,6 +14,7 @@ static THD_FUNCTION(Thread1, arg) {
     chThdSleepMilliseconds(1000);
   }
 }
+*/
 
 int main(void) {
   /*
@@ -22,10 +24,10 @@ int main(void) {
    * - Kernel initialization, the main() function becomes a thread and the
    *   RTOS is active.
    */
-  halInit();
+  halInit(); // debugger
   chSysInit();
 
-  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+  //chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   while (true) {
     chThdSleepMilliseconds(5000);
