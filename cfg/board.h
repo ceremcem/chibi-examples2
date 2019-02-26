@@ -22,12 +22,6 @@
  */
 
 /*
- * Board identifier.
- */
-#define BOARD_ST_STM32F030F4P6
-#define BOARD_NAME                  "STMicroelectronics STM32F030F4P6"
-
-/*
  * Board oscillators-related settings.
  * NOTE: LSE not fitted.
  * NOTE: HSE not fitted.
@@ -45,9 +39,16 @@
 #define STM32_HSE_BYPASS
 
 /*
+ * Board identifier.
+ */
+#define BOARD_ST_STM32F030F4P6
+#define BOARD_NAME                  "STMicroelectronics STM32F030F4P6"
+
+/*
  * MCU type as defined in the ST header.
  */
-#define STM32F030x6 // same for STM32F030x4, see `os/common/ext/ST/STM32F0xx/stm32f0xx.h`
+#define STM32F030x4
+#define STM32F030x6
 
 /*
  * IO pins assignments.
