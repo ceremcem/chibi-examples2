@@ -16,6 +16,6 @@ INSTALL
 -----------
 
 ```
-git clone --recursive THIS_REPO
+git clone --recursive https://github.com/ceremcem/chibios-stm32f030f4-example
 # flash or start debugging
 ```
