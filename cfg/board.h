@@ -22,23 +22,6 @@
  */
 
 /*
- * Board oscillators-related settings.
- * NOTE: LSE not fitted.
- * NOTE: HSE not fitted.
- */
-#if !defined(STM32_LSECLK)
-#define STM32_LSECLK                0U
-#endif
-
-#define STM32_LSEDRV                (3U << 3U)
-
-#if !defined(STM32_HSECLK)
-#define STM32_HSECLK                0U
-#endif
-
-#define STM32_HSE_BYPASS
-
-/*
  * Board identifier.
  */
 #define BOARD_ST_STM32F030F4P6
@@ -47,6 +30,8 @@
 /*
  * MCU type as defined in the ST header.
  */
+
+// define both, see http://www.chibios.com/forum/viewtopic.php?f=16&t=5018#p34978
 #define STM32F030x4
 #define STM32F030x6
 
