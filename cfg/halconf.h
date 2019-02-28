@@ -33,11 +33,17 @@
 
 #include "mcuconf.h"
 
+// TODO: move the overrides into a separate header file
+#define HAL_USE_PAL                         TRUE
+#define PAL_USE_CALLBACKS                   TRUE
+#define HAL_USE_PWM                         TRUE
+
+
 /**
  * @brief   Enables the PAL subsystem.
  */
 #if !defined(HAL_USE_PAL) || defined(__DOXYGEN__)
-#define HAL_USE_PAL                         TRUE
+#define HAL_USE_PAL                         FALSE
 #endif
 
 /**
@@ -121,7 +127,7 @@
  * @brief   Enables the PWM subsystem.
  */
 #if !defined(HAL_USE_PWM) || defined(__DOXYGEN__)
-#define HAL_USE_PWM                         TRUE
+#define HAL_USE_PWM                         FALSE
 #endif
 
 /**
@@ -196,7 +202,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(PAL_USE_CALLBACKS) || defined(__DOXYGEN__)
-#define PAL_USE_CALLBACKS                   TRUE
+#define PAL_USE_CALLBACKS                   FALSE
 #endif
 
 /**
