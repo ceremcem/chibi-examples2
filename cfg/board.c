@@ -32,22 +32,26 @@ const PALConfig pal_default_config =
 };
 #endif
 
+void set_cr(uint8_t pin_number, GPIO_TypeDef * GPIOx, uint8_t mode){
+    uint32_t c;
+    if (pin_number < 8) {
+        c = GPIOx->CRL;
+    } else {
+        c = GPIOx->CRH;
+    }
+    c &= ~(0xf << PIN_NUM(pin_number)); // clear the tuple
+    c |= (mode << PIN_NUM(pin_number));
+    #pragma message("Pin configured as pwm")
+    if (pin_number < 8) {
+        GPIOx->CRL = c;
+    } else {
+        GPIOx->CRH = c;
+    }
+}
+
 
 void hw_init_io(void){
-    uint32_t c;
-    if (PWM0 < 8) {
-        c = GPIOB->CRL;
-    } else {
-        c = GPIOB->CRH;
-    }
-    c &= ~(0xf << PIN_NUM(PWM0)); // clear the tuple
-    c |= (PWM_CONF_50MHZ << PIN_NUM(PWM0));
-    #pragma message("Pin configured as pwm")
-    if (PWM0 < 8) {
-        GPIOB->CRL = c;
-    } else {
-        GPIOB->CRH = c;
-    }
+    set_cr(PWM0, GPIOB, PWM_CONF_50MHZ);
 }
 
 /*
