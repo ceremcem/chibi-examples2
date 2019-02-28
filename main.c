@@ -25,16 +25,6 @@ int main(void)
     start_motion();
 
     pwmStart(&PWMD3, &pwmcfg);
-
-    // configure PB1 as PWM3/4
-    // set GPIOB_CRL -> CNF1 & MODE1
-    // CNF1: 10 (alternate function output) & MODE1: 11 (50 MHz)
-    // CNF1_MODE1: 0b1011
-    uint32_t x = GPIOB->CRL;
-    x &= ~(0xf << 4); // clear the tuple
-    x |= (0b1011 << 4);
-    GPIOB->CRL = x;
-
     pwmEnableChannel(&PWMD3, 3, PWM_PERCENTAGE_TO_WIDTH (&PWMD3, 3000));
 
 

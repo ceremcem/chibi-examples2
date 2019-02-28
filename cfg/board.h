@@ -19,23 +19,42 @@
 #define DI2                     4
 #define DI3                     5
 
-#define PULSE_OUT               DQ0
-#define DIR_OUT                 DQ1
-#define UPWARD_BUTTON           DI0
-#define DOWNWARD_BUTTON         DI1
-#define LOWER_LIMIT_SWITCH      DI2
-#define UPPER_LIMIT_SWITCH      DI3
-
+// GPIOB
+#define PWM0                    1
 
 /*
- * Mass assignment of I/O ports.
- * I/O ports initial setup, this configuration is established soon after reset
- * in the initialization code.
+ * I/O Assignment
+ *
+ * Refer to board.c/hw_init_io for additional settings
+ *
  * Please refer to the STM32 Reference Manual for details.
  */
 #define CR_DEFAULT    0x44444444
 #define ODR_DEFAULT    0x00000000
 
+#define GPIO_MODE_INPUT             0b00
+#define GPIO_MODE_OUTPUT_10MHZ      0b01
+#define GPIO_MODE_OUTPUT_2MHZ       0b10
+#define GPIO_MODE_OUTPUT_50MHZ      0b11
+
+// valid only GPIO_MODE is 0
+#define GPIO_CNF_ANALOG             (0b00 << 2)
+#define GPIO_CNF_INPUT_FLOATING     (0b01 << 2)
+#define GPIO_CNF_INPUT_PUPD         (0b10 << 2)
+// valid only GPIO_MODE > 0
+#define GPIO_CNF_OUTPUT_PP          (0b00 << 2)
+#define GPIO_CNF_OUTPUT_OD          (0b01 << 2)
+#define GPIO_CNF_AF_PP              (0b10 << 2)
+#define GPIO_CNF_AF_OD              (0b11 << 2)
+
+// GPIO configurations for device peripherals
+#define PWM_CONF_50MHZ              (GPIO_CNF_AF_PP | GPIO_MODE_OUTPUT_50MHZ)
+
+#define PIN_NUM(x)                  (4 * x % 8)     // 4 bits per pin config
+
+/*
+ * Mass settings
+ */
 // Port A setup
 #define VAL_GPIOACRL            CR_DEFAULT      /*  PA7...PA0 */
 #define VAL_GPIOACRH            CR_DEFAULT      /* PA15...PA8 */
@@ -60,6 +79,7 @@
 #define VAL_GPIOECRL            CR_DEFAULT      /*  PA7...PA0 */
 #define VAL_GPIOECRH            CR_DEFAULT      /* PA15...PA8 */
 #define VAL_GPIOEODR            ODR_DEFAULT
+
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

@@ -32,19 +32,36 @@ const PALConfig pal_default_config =
 };
 #endif
 
+
+void hw_init_io(void){
+    uint32_t c;
+    if (PWM0 < 8) {
+        c = GPIOB->CRL;
+    } else {
+        c = GPIOB->CRH;
+    }
+    c &= ~(0xf << PIN_NUM(PWM0)); // clear the tuple
+    c |= (PWM_CONF_50MHZ << PIN_NUM(PWM0));
+    #pragma message("Pin configured as pwm")
+    if (PWM0 < 8) {
+        GPIOB->CRL = c;
+    } else {
+        GPIOB->CRH = c;
+    }
+}
+
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
  * any other initialization.
  */
 void __early_init(void) {
-
-  stm32_clock_init();
+    stm32_clock_init();
 }
 
 /*
  * Board-specific initialization code.
  */
 void boardInit(void) {
-
+    hw_init_io();
 }
