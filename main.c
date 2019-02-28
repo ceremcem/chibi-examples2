@@ -4,34 +4,31 @@
 thread_t * motion_t;
 bool motion_enable = false;
 
-static PWMConfig pwmcfg = {
-	frequency: 2000000,   // PWM clock frequency
-	period: 100,       // PWM resolution (overall PWM signal frequency: PCF/PR)
-	callback: NULL,      // No callback
-	channels: {
-		{PWM_OUTPUT_DISABLED, NULL},
-		{PWM_OUTPUT_DISABLED, NULL},
-		{PWM_OUTPUT_DISABLED, NULL},
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL}
-	}
-};
-
 int main(void)
 {
 	halInit();
 	chSysInit();
 
     init_io();
+
     start_motion();
 
-    pwmStart(&PWMD3, &pwmcfg);
-    pwmEnableChannel(&PWMD3, 3, PWM_PERCENTAGE_TO_WIDTH (&PWMD3, 3000));
+    pwmStart(&pulse_PWMD, &pwmcfg);
+    pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 5000));
 
 
 	/*Main task loop*/
+    pwmcnt_t period = 1000000;
 	while(!0)
 	{
-        chThdSleepMilliseconds(1400);
+        //chThdSleepMilliseconds(1000);
+        //pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 3000));
+        chThdSleepMilliseconds(1000);
+        pwmChangePeriod(&pulse_PWMD, 30);
+        pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 5000));
+        if (period > 10000){
+            period -= 1000;
+        }
 	}
 }
 

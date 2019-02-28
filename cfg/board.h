@@ -19,8 +19,7 @@
 #define DI2                     4
 #define DI3                     5
 
-// GPIOB
-#define PWM0                    1
+#define pulse_PWMD  PWMD3
 
 /*
  * I/O Assignment
@@ -79,7 +78,6 @@
 #define VAL_GPIOECRL            CR_DEFAULT      /*  PA7...PA0 */
 #define VAL_GPIOECRH            CR_DEFAULT      /* PA15...PA8 */
 #define VAL_GPIOEODR            ODR_DEFAULT
-
 
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus

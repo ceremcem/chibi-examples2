@@ -30,3 +30,6 @@ extern void ramp(void*);
 
 //io.c
 void init_io(void);
+
+// board.c
+extern PWMConfig pwmcfg;
