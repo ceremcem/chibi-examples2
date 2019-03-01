@@ -141,8 +141,6 @@ INCDIR = $(ALLINC) $(TESTINC) $(CONFDIR)
 # Compiler settings
 #
 
-MCU  = cortex-m3
-
 #TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc

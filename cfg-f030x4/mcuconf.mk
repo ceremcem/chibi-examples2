@@ -1,5 +1,5 @@
-# Define linker script file here
 include $(CHIBIOS)/os/hal/ports/STM32/STM32F0xx/platform.mk
+MCU  = cortex-m0
 
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v6m.mk
 
