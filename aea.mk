@@ -1,9 +1,13 @@
+# IMPORTANT: In order to debug, enable the following:
+#USE_VERBOSE_COMPILE := yes
+
 # Define project name here
 PROJECT = ch
 
 # Imported source files and paths.
 CHIBIOS  := $(HOME)/ChibiOS
-CONFDIR  := ./cfg
+# use cfg-f030x4 or cfg-f103x8
+CONFDIR  := ./cfg-f030x4
 BUILDDIR := ./build
 DEPDIR   := ./.dep
 
@@ -29,7 +33,7 @@ GCC_VERSION := $(shell gcc --version | grep ^gcc | sed 's/^.* //g')
 DEPS_DB := $(CURDIR)/dependencies.txt
 
 PRE_MAKE_ALL_RULE_HOOK:
-	true > $(DEPS_DB)
+	@true > $(DEPS_DB)
 	@echo "ChibiOS/$(CHIBIOS_BRANCH) $(CHIBIOS_COMMIT)" >> $(DEPS_DB)
 	@echo "GCC $(GCC_VERSION)" >> $(DEPS_DB)
 
