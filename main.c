@@ -1,20 +1,24 @@
 #include "main.h"
 
 /*
- * Red LED blinker thread, times are in milliseconds.
+ * Green LED blinker thread, times are in milliseconds.
  */
 /*
 static THD_WORKING_AREA(waThread1, 128);
 static THD_FUNCTION(Thread1, arg) {
+
   (void)arg;
+  chRegSetThreadName("blinker");
   while (true) {
-    palClearPad(GPIOA, GPIOA_LED_GREEN);
-    chThdSleepMilliseconds(1000);
     palSetPad(GPIOA, GPIOA_LED_GREEN);
-    chThdSleepMilliseconds(1000);
+    chThdSleepMilliseconds(500);
+    palClearPad(GPIOA, GPIOA_LED_GREEN);
+    chThdSleepMilliseconds(500);
   }
 }
 */
+
+#define DIR_OUT 1
 
 int main(void) {
   /*
@@ -24,12 +28,18 @@ int main(void) {
    * - Kernel initialization, the main() function becomes a thread and the
    *   RTOS is active.
    */
-  halInit(); // debugger
+  halInit();
   chSysInit();
+
+  palSetPadMode(GPIOA, DIR_OUT, PAL_MODE_OUTPUT_PUSHPULL);
 
   //chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   while (true) {
-    chThdSleepMilliseconds(5000);
+    palSetPad(GPIOA, DIR_OUT);
+    chThdSleepMilliseconds(10); //// debugger
+    palClearPad(GPIOA, DIR_OUT);
+    chThdSleepMilliseconds(10); //// debugger
+
   }
 }

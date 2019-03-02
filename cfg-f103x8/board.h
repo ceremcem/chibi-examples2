@@ -17,68 +17,35 @@
  * in the initialization code.
  * Please refer to the STM32 Reference Manual for details.
  */
- #define PIN_MODE_ANALOG(n)         (0x00 << ((n) * 2U))
-#define PIN_MODE_INPUT(n)           (0U << ((n) * 2U))
-#define PIN_MODE_OUTPUT(n)          (1U << ((n) * 2U))
-#define PIN_MODE_ALTERNATE(n)       (2U << ((n) * 2U))
-
-#define PIN_ODR_LOW(n)              (0U << (n))
-#define PIN_ODR_HIGH(n)             (1U << (n))
-#define PIN_OTYPE_PUSHPULL(n)       (0U << (n))
-#define PIN_OTYPE_OPENDRAIN(n)      (1U << (n))
-#define PIN_OSPEED_2M(n)            (0U << ((n) * 2U))
-#define PIN_OSPEED_10M(n)           (1U << ((n) * 2U))
-#define PIN_OSPEED_40M(n)           (3U << ((n) * 2U))
-#define PIN_PUPDR_FLOATING(n)       (0U << ((n) * 2U))
-#define PIN_PUPDR_PULLUP(n)         (1U << ((n) * 2U))
-#define PIN_PUPDR_PULLDOWN(n)       (2U << ((n) * 2U))
-#define PIN_AFIO_AF(n, v)           ((v) << (((n) % 8U) * 4U))
 
 /*
- * Port A setup. (see STM32F103 Reference, 9.2 GPIO registers)
+ * Port A setup.
  */
-//#define VAL_GPIOACRL            0x00008B44      /*  PA7...PA0 */
-//#define VAL_GPIOACRH            0x8882BBBB      /* PA15...PA8 */
-//#define VAL_GPIOAODR            0x00000000
 #define VAL_GPIOACRL            0x44444444      /*  PA7...PA0 */
 #define VAL_GPIOACRH            0x44444444      /* PA15...PA8 */
 #define VAL_GPIOAODR            0x00000000
 
-
-
 /*
  * Port B setup.
- * Everything output push pull
  */
-#define VAL_GPIOBCRL            0x22222222      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0x22222222      /* PB15...PB8 */
+#define VAL_GPIOBCRL            0x44444444      /*  PB7...PB0 */
+#define VAL_GPIOBCRH            0x44444444      /* PB15...PB8 */
 #define VAL_GPIOBODR            0x00000000
 
 /*
  * Port C setup.
- * Everything input with pull-up except:
- * PC4  - Normal input because there is an external resistor.
- * PC6  - Normal input because there is an external resistor.
- * PC7  - Normal input because there is an external resistor.
- * PC10 - Push Pull output (CAN CNTRL).
- * PC11 - Push Pull output (USB DISC).
- * PC12 - Push Pull output (LED).
- * PC13 - Push Pull output (LED).
  */
-#define VAL_GPIOCCRL            0x44848882      /*  PC7...PC0 */
-#define VAL_GPIOCCRH            0x88333388      /* PC15...PC8 */
-#define VAL_GPIOCODR            0xFFFFFFFF
+#define VAL_GPIOCCRL            0x44444444      /*  PC7...PC0 */
+#define VAL_GPIOCCRH            0x44444444      /* PC15...PC8 */
+#define VAL_GPIOCODR            0x00000000
 
 /*
  * Port D setup.
  * Everything input with pull-up except:
- * PD0  - Normal input (XTAL).
- * PD1  - Normal input (XTAL).
  */
-#define VAL_GPIODCRL            0x88888833      /*  PD7...PD0 */
-// WARNING: PD0 and PD1 is remapped to be used as outputs, see board.c
-#define VAL_GPIODCRH            0x88888888      /* PD15...PD8 */
-#define VAL_GPIODODR            0xFFFFFFFF
+#define VAL_GPIODCRL            0x44444444      /*  PD7...PD0 */
+#define VAL_GPIODCRH            0x44444444      /* PD15...PD8 */
+#define VAL_GPIODODR            0x00000000
 
 /*
  * Port E setup.
@@ -86,7 +53,7 @@
  */
 #define VAL_GPIOECRL            0x88888888      /*  PE7...PE0 */
 #define VAL_GPIOECRH            0x88888888      /* PE15...PE8 */
-#define VAL_GPIOEODR            0xFFFFFFFF
+#define VAL_GPIOEODR            0x00000000
 
 
 #if !defined(_FROM_ASM_)
