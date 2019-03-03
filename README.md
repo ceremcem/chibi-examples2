@@ -1,3 +1,20 @@
+Hardware:
+---------
+Use `cfg-f030x4` or `cfg-f103x8` in `aea.mk` to select the hardware.
+
+BOARD INFO:
+-----------
+Pinout: see cfg/board.c/h and io.h
+
+
+GET
+-----------
+
+```
+git clone --recursive https://github.com/ceremcem/chibi-examples2
+cd chibi-examples2
+```
+
 Flashing and Debugging
 ---------------------
 Basic instructions:
@@ -6,16 +23,3 @@ Basic instructions:
 2. Debugging                   : `make start-debugging`
 
 For further instructions, see mcu-debug/README.md
-
-BOARD INFO:
------------
-Pinout: see cfg/board.c/h and io.h
-
-
-INSTALL
------------
-
-```
-git clone --recursive https://github.com/ceremcem/chibios-stm32f030f4-example
-# flash or start debugging
-```
