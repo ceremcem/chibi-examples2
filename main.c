@@ -18,7 +18,6 @@ static THD_FUNCTION(Thread1, arg) {
 }
 */
 
-#define DIR_OUT 1
 
 int main(void) {
   /*

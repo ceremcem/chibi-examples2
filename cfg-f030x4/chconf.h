@@ -33,7 +33,7 @@
 
 /*============= OVERWRITES ================== */
 #define CH_CFG_USE_TM                       FALSE
-#define CH_CFG_ST_FREQUENCY                 200000
+#define CH_CFG_ST_FREQUENCY                 100000
 /*========== END OF OVERWRITES ============== */
 
 
@@ -406,7 +406,7 @@
  * @note    The default is @p FALSE.
  */
 #if !defined(CH_CFG_USE_FACTORY)
-#define CH_CFG_USE_FACTORY                  TRUE
+#define CH_CFG_USE_FACTORY                  FALSE
 #endif
 
 /**
