@@ -9,9 +9,9 @@ static THD_FUNCTION(Thread1, arg) {
   (void)arg;
   chRegSetThreadName("blinker");
   while (true) {
-    palSetPad(GPIOA, DIR_OUT);
+    palSetPad(GPIOA, GPIOA_DIR_OUT);
     chThdSleepMilliseconds(15);
-    palClearPad(GPIOA, DIR_OUT);
+    palClearPad(GPIOA, GPIOA_DIR_OUT);
     chThdSleepMilliseconds(15);
   }
 }
@@ -29,7 +29,12 @@ int main(void) {
   chSysInit();
   init_io();
 
+  // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
+
+  // start PWM
+  pwmStart(&pulse_PWM_dr, &pwmcfg);
+  pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 5000));
 
   while (true) {
     chThdSleepMilliseconds(1000); // debugger

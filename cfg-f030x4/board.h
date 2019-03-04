@@ -39,6 +39,7 @@
 /*
  * IO pins assignments.
  */
+#define GPIOA_PWM1_3        10u
 
 /*
  * I/O ports initial setup, this configuration is established soon after reset
@@ -63,7 +64,7 @@
 
 /*
  * GPIOA setup: DEFAULT
- *
+ * PA10: PWM1.3 -> AF2 (RM/Table 12)
  */
 
 // defaults, see Reference Manual, 8.4
@@ -82,13 +83,13 @@
 #define GPIOx_AFRL_DEFAULT                  0
 #define GPIOx_AFRH_DEFAULT                  0
 
-#define VAL_GPIOA_MODER             GPIOA_MODER_DEFAULT
-#define VAL_GPIOA_OTYPER            GPIOA_OTYPER_DEFAULT
-#define VAL_GPIOA_OSPEEDR           GPIOA_OSPEEDR_DEFAULT
+#define VAL_GPIOA_MODER             PIN_MODE_ALTERNATE(GPIOA_PWM1_3)
+#define VAL_GPIOA_OTYPER            PIN_OTYPE_PUSHPULL(GPIOA_PWM1_3)
+#define VAL_GPIOA_OSPEEDR           PIN_OSPEED_40M(GPIOA_PWM1_3)
 #define VAL_GPIOA_PUPDR             GPIOA_PUPDR_DEFAULT
 #define VAL_GPIOA_ODR               GPIOA_ODR_DEFAULT
 #define VAL_GPIOA_AFRL              GPIOA_AFRL_DEFAULT
-#define VAL_GPIOA_AFRH              GPIOA_AFRH_DEFAULT
+#define VAL_GPIOA_AFRH              PIN_AFIO_AF(GPIOA_PWM1_3, 2u)
 
 #define VAL_GPIOB_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOB_OTYPER            GPIOx_OTYPER_DEFAULT
