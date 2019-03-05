@@ -20,8 +20,10 @@ ALLCSRC += $(SRCS)
 ALLINC += $(SRCINC)
 
 # Software level IO configuration
-# ./io.c
-ALLCSRC += io.c
+#
+APPDIR := $(CURDIR)/app
+ALLCSRC += $(APPDIR)/io.c
+ALLINC += $(APPDIR)
 
 .DEFAULT_GOAL := all
 

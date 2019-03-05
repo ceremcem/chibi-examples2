@@ -101,7 +101,7 @@ include $(CHIBIOS)/test/oslib/oslib_test.mk
 # setting.
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
-       main.c
+       $(APPDIR)/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
