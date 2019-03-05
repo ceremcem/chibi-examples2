@@ -83,7 +83,8 @@
 #define GPIOx_AFRL_DEFAULT                  0
 #define GPIOx_AFRH_DEFAULT                  0
 
-#define VAL_GPIOA_MODER             PIN_MODE_ALTERNATE(GPIOA_PWM1_3)
+#define VAL_GPIOA_MODER             (GPIOA_MODER_DEFAULT | \
+                                        PIN_MODE_ALTERNATE(GPIOA_PWM1_3))
 #define VAL_GPIOA_OTYPER            PIN_OTYPE_PUSHPULL(GPIOA_PWM1_3)
 #define VAL_GPIOA_OSPEEDR           PIN_OSPEED_40M(GPIOA_PWM1_3)
 #define VAL_GPIOA_PUPDR             GPIOA_PUPDR_DEFAULT
