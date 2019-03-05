@@ -34,9 +34,16 @@ int main(void) {
 
   // start PWM
   pwmStart(&pulse_PWM_dr, &pwmcfg);
-  pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 5000));
+  uint16_t percentage = 5000; // unit: 1/10_000
+  uint8_t period = 100;
+  pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
   while (true) {
     chThdSleepMilliseconds(1000); // debugger
+    if (period > 50){
+        period -= 10;
+    }
+    pwmChangePeriod(&pulse_PWM_dr, period);
+    pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
   }
 }
