@@ -13,22 +13,14 @@ int main(void)
 
     start_motion();
 
-    pwmStart(&pulse_PWMD, &pwmcfg);
-    pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 5000));
+    pwmStart(&pulse_PWM_dr, &pwmcfg); 
+    pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 5000));
 
 
 	/*Main task loop*/
-    pwmcnt_t period = 1000000;
 	while(!0)
 	{
-        //chThdSleepMilliseconds(1000);
-        //pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 3000));
         chThdSleepMilliseconds(1000);
-        pwmChangePeriod(&pulse_PWMD, 30);
-        pwmEnableChannel(&pulse_PWMD, 3, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWMD, 5000));
-        if (period > 10000){
-            period -= 1000;
-        }
 	}
 }
 
@@ -91,7 +83,7 @@ void DOWNWARD_button(bool pressed){
 }
 
 void button_callback(uint8_t pad){
-    bool state = ! palReadPad(GPIOA, pad); //// debugger
+    bool state = ! palReadPad(GPIOA, pad); // debugger
     if (pad == UPWARD_BUTTON){
         UPWARD_button(state);
     } else {

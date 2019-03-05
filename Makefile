@@ -101,7 +101,7 @@ include $(CHIBIOS)/test/oslib/oslib_test.mk
 # setting.
 CSRC = $(ALLCSRC) \
        $(TESTSRC) \
-       main.c
+       $(APPDIR)/main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -140,8 +140,6 @@ INCDIR = $(ALLINC) $(TESTINC) $(CONFDIR)
 ##############################################################################
 # Compiler settings
 #
-
-MCU  = cortex-m3
 
 #TRGT = arm-elf-
 TRGT = arm-none-eabi-

@@ -5,6 +5,7 @@ include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.m
 
 # RTOS file
 include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+MCU = cortex-m3
 
 # Linker script
 LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
