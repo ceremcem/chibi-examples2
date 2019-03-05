@@ -34,12 +34,19 @@ GCC_VERSION := $(shell gcc --version | grep ^gcc | sed 's/^.* //g')
 
 DEPS_DB := $(CURDIR)/dependencies.txt
 
+ifneq ("$(wildcard $(CURDIR)/debug-mode)","")
+  OPTIMIZATION_LEVEL = 0
+else
+  OPTIMIZATION_LEVEL = 2
+endif
+
 PRE_MAKE_ALL_RULE_HOOK:
 	@true > $(DEPS_DB)
 	@echo "ChibiOS/$(CHIBIOS_BRANCH) $(CHIBIOS_COMMIT)" >> $(DEPS_DB)
 	@echo "GCC $(GCC_VERSION)" >> $(DEPS_DB)
 
 POST_MAKE_ALL_RULE_HOOK:
+	@echo "INFO: Optimization level is: $(OPTIMIZATION_LEVEL)"
 
 CLEAN_RULE_HOOK:
 	@echo "Cleanup hook..."
