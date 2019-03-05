@@ -16,4 +16,5 @@ PWMConfig pwmcfg = {
 
 void init_io(void){
       palSetPadMode(GPIOA, GPIOA_DIR_OUT, PAL_MODE_OUTPUT_PUSHPULL);
+      palSetPadMode(GPIOA, GPIOA_TEST_OUTPUT, PAL_MODE_OUTPUT_PUSHPULL);
 }
