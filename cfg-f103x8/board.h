@@ -4,7 +4,8 @@
 /*
  * MCU type, supported types are defined in ChibiOS/os/hal/platforms/hal_lld.h.
  */
-#define STM32F103x8 // see http://www.chibios.com/forum/viewtopic.php?f=35&t=5029
+#define STM32F103x8
+#define STM32F103xB // temporary definition, see http://www.chibios.com/forum/viewtopic.php?f=35&t=5029
 
 
 /*
