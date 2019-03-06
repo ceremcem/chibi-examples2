@@ -23,13 +23,13 @@
 #define STM32F030x4
 #define STM32F030x6 // see https://github.com/ChibiOS/ChibiOS/pull/31
 
-#include "stm32f030_init_io.h"
-
 /*
  * IO pins assignments.
  */
 #define GPIOA_PWM1_3        10u
 #define GPIOA_1             1u
+
+#include "stm32f030_init_io.h"
 
 /*
  * GPIOA setup
