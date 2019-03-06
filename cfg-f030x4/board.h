@@ -21,7 +21,7 @@
  * MCU type as defined in the ST header.
  */
 #define STM32F030x4
-#define STM32F030x6 // see https://github.com/ChibiOS/ChibiOS/pull/31
+#define STM32F030x6 // temporary definition, see http://www.chibios.com/forum/viewtopic.php?f=35&t=5023
 
 /*
  * IO pins assignments.
