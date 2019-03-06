@@ -8,11 +8,12 @@ static THD_FUNCTION(Thread1, arg) {
 
   (void)arg;
   chRegSetThreadName("blinker");
+  uint8_t half_period = 15; //ms
   while (true) {
     palSetPad(GPIOA, GPIOA_DIR_OUT);
-    chThdSleepMilliseconds(15);
+    chThdSleepMilliseconds(half_period);
     palClearPad(GPIOA, GPIOA_DIR_OUT);
-    chThdSleepMilliseconds(15);
+    chThdSleepMilliseconds(half_period);
   }
 }
 
@@ -34,13 +35,13 @@ int main(void) {
 
   // start PWM
   pwmStart(&pulse_PWM_dr, &pwmcfg);
-  uint16_t percentage = 5000; // unit: 1/10_000
+  uint16_t percentage = 2000; // unit: 1/10_000
   uint8_t period = pwmcfg.period;
   pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
   uint8_t state = 1;
   while (true) {
-    chThdSleepMilliseconds(1000); // debugger
+    chThdSleepMilliseconds(10);
     if (period > 40){
         period -= 30;
     }
@@ -52,7 +53,7 @@ int main(void) {
     //state ^= 1;
 
     if (! palReadPad(GPIOA, GPIOA_TEST_INPUT)){
-        palSetPad(GPIOA, GPIOA_TEST_OUTPUT); // debugger 
+        palSetPad(GPIOA, GPIOA_TEST_OUTPUT);        //// debugger
     } else {
         palClearPad(GPIOA, GPIOA_TEST_OUTPUT);
     }

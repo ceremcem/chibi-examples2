@@ -32,6 +32,23 @@ const PALConfig pal_default_config =
 };
 #endif
 
+void set_cr(GPIO_TypeDef * GPIOx, uint8_t pin_number, uint8_t mode){
+    uint32_t c;
+    if (pin_number < 8) {
+        c = GPIOx->CRL;
+    } else {
+        c = GPIOx->CRH;
+    }
+    c &= ~(0xf << PIN_NUM(pin_number)); // clear the tuple
+    c |= (mode << PIN_NUM(pin_number));
+    if (pin_number < 8) {
+        GPIOx->CRL = c;
+    } else {
+        GPIOx->CRH = c;
+    }
+}
+
+
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
@@ -46,5 +63,7 @@ void __early_init(void) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-
+    // init IO
+    set_cr(GPIOA, GPIOA_PWM1_3, PWM_CONF_50MHZ);
+    // end of init IO
 }
