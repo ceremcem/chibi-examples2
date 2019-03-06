@@ -1,4 +1,12 @@
 ##############################################################################
+# Include Aktos Electronics settings
+
+include aea.mk
+
+# Aktos Electronics settings
+##############################################################################
+
+##############################################################################
 # Build global options
 # NOTE: Can be overridden externally.
 #
@@ -81,8 +89,6 @@ endif
 ##############################################################################
 # Project, sources and paths
 #
-
-include aea.mk
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk
