@@ -46,7 +46,12 @@ PRE_MAKE_ALL_RULE_HOOK:
 	@echo "GCC $(GCC_VERSION)" >> $(DEPS_DB)
 
 POST_MAKE_ALL_RULE_HOOK:
-	@echo "INFO: Optimization level is: $(OPTIMIZATION_LEVEL)"
+	@if [ $(OPTIMIZATION_LEVEL) -lt 2 ]; then \
+		echo "------------------------------------------------------"; \
+		echo -n "WARNING: Optimization level is: $(OPTIMIZATION_LEVEL)"; \
+		echo " [DEBUG MODE ACTIVE!]"; \
+		echo "------------------------------------------------------"; \
+	fi
 
 CLEAN_RULE_HOOK:
 	@echo "Cleanup hook..."
