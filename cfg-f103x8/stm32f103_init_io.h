@@ -19,7 +19,10 @@
 // GPIO configurations for device peripherals
 #define PWM_CONF_50MHZ              (GPIO_CNF_AF_PP | GPIO_MODE_OUTPUT_50MHZ)
 
-#define PIN_NUM(x)                  (4 * (x % 8))     // 4 bits per pin config
+#define PIN_NUM(x)                  (4 * (x % 8)) // 4 bits per pin config,
+                                                  // resetting at 8th pin
+                                                  // in order to separate LOW and HIGH
+                                                  // config registers
 
 /* Example settings:
 -----------------------
