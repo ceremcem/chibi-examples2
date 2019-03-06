@@ -30,6 +30,7 @@
 
 
 In board.c, do the following:
+-------------------------------
 
 void set_cr(GPIO_TypeDef * GPIOx, uint8_t pin_number, uint8_t mode){
     uint32_t c;
