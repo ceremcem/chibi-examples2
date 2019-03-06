@@ -41,7 +41,7 @@ int main(void) {
 
   uint8_t state = 1;
   while (true) {
-    chThdSleepMilliseconds(10);
+    chThdSleepMilliseconds(10); // debugger
     if (period > 40){
         period -= 30;
     }
@@ -49,14 +49,8 @@ int main(void) {
     pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
     // test the output
-    //palWritePad(GPIOA, GPIOA_TEST_OUTPUT, state);
-    //state ^= 1;
-
-    if (! palReadPad(GPIOA, GPIOA_TEST_INPUT)){
-        palSetPad(GPIOA, GPIOA_TEST_OUTPUT);        //// debugger
-    } else {
-        palClearPad(GPIOA, GPIOA_TEST_OUTPUT);
-    }
-
+    state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT); // debugger
+    //state ^= 1; // toggle
+    palWritePad(GPIOA, GPIOA_TEST_OUTPUT, state);
   }
 }
