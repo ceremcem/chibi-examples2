@@ -22,10 +22,10 @@ THD_FUNCTION(ramp, arg) {
             if (offset > 0){
                 offset--;
             }
-            //palSetPad(GPIOA, PULSE_OUT);
-        	//chThdSleepMicroseconds(period + offset);
-            //palClearPad(GPIOA, PULSE_OUT);
-        	//chThdSleepMicroseconds(period + offset);
+            palSetPad(GPIOA, DIR_OUT);
+        	chThdSleepMicroseconds(period + offset);
+            palClearPad(GPIOA, DIR_OUT);
+        	chThdSleepMicroseconds(period + offset);
             chThdSleepMilliseconds(1);
         } else {
             chThdSleepMilliseconds(1);

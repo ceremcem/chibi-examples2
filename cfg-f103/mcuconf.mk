@@ -8,4 +8,4 @@ include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 MCU = cortex-m3
 
 # Linker script
-LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
+LDSCRIPT= $(STARTUPLD)/STM32F103x8.ld

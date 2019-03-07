@@ -18,21 +18,10 @@
 #define _BOARD_H_
 
 /*
- * Setup for STMicroelectronics STM32F030F4P6 board.
- */
-
-/*
- * Board identifier.
- */
-#define BOARD_ST_STM32F030F4P6
-#define BOARD_NAME                  "STMicroelectronics STM32F030F4P6"
-
-/*
  * MCU type as defined in the ST header.
  */
 #define STM32F030x4
-#define STM32F030x6 // see https://github.com/ChibiOS/ChibiOS/pull/31
-
+//#define STM32F030x6 // see https://github.com/ChibiOS/ChibiOS/pull/31
 
 /*
  * IO pins assignments.
@@ -44,56 +33,10 @@
 #define GPIOA_3             3
 #define GPIOA_4             4
 
+#include "stm32f030_init_io.h"
 
-/*
- * I/O ports initial setup, this configuration is established soon after reset
- * in the initialization code.
- * Please refer to the STM32 Reference Manual for details.
- */
-#define PIN_MODE_INPUT(n)           (0U << ((n) * 2U))
-#define PIN_MODE_OUTPUT(n)          (1U << ((n) * 2U))
-#define PIN_MODE_ALTERNATE(n)       (2U << ((n) * 2U))
-#define PIN_MODE_ANALOG(n)          (3U << ((n) * 2U))
-#define PIN_ODR_LOW(n)              (0U << (n))
-#define PIN_ODR_HIGH(n)             (1U << (n))
-#define PIN_OTYPE_PUSHPULL(n)       (0U << (n))
-#define PIN_OTYPE_OPENDRAIN(n)      (1U << (n))
-#define PIN_OSPEED_2M(n)            (0U << ((n) * 2U))
-#define PIN_OSPEED_10M(n)           (1U << ((n) * 2U))
-#define PIN_OSPEED_40M(n)           (3U << ((n) * 2U))
-#define PIN_PUPDR_FLOATING(n)       (0U << ((n) * 2U))
-#define PIN_PUPDR_PULLUP(n)         (1U << ((n) * 2U))
-#define PIN_PUPDR_PULLDOWN(n)       (2U << ((n) * 2U))
-#define PIN_AFIO_AF(n, mode)        ((mode) << (((n) % 8U) * 4U))
-
-/*
- * GPIOA setup: DEFAULT
- * PA10: PWM1.3 -> AF2 (RM/Table 12)
- */
-
-#define GPIOA_SWDIO                 13u
-#define GPIOA_SWCLK                 14u
-
-// defaults, see Reference Manual, 8.4
-#define GPIOA_MODER_DEFAULT                 (PIN_MODE_ALTERNATE(GPIOA_SWDIO) | \
-                                                PIN_MODE_ALTERNATE(GPIOA_SWCLK) | \
-                                                PIN_MODE_INPUT(GPIOA_1))
-#define GPIOx_MODER_DEFAULT                 0
-#define GPIOA_OTYPER_DEFAULT                0
-#define GPIOx_OTYPER_DEFAULT                0
-#define GPIOA_OSPEEDR_DEFAULT               PIN_OSPEED_40M(GPIOA_SWDIO)
-#define GPIOx_OSPEEDR_DEFAULT               0
-#define GPIOA_PUPDR_DEFAULT                 (PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) | \
-                                                PIN_PUPDR_PULLUP(GPIOA_SWDIO))
-#define GPIOx_PUPDR_DEFAULT                 0
-#define GPIOA_ODR_DEFAULT                   0
-#define GPIOx_ODR_DEFAULT                   0
-#define GPIOA_AFRL_DEFAULT                  0
-#define GPIOA_AFRH_DEFAULT                  0
-#define GPIOx_AFRL_DEFAULT                  0
-#define GPIOx_AFRH_DEFAULT                  0
-
-
+// GPIOA
+// ---------
 #define VAL_GPIOA_MODER             (GPIOA_MODER_DEFAULT | \
                                         PIN_MODE_ALTERNATE(GPIOA_PWM1_3))
 #define VAL_GPIOA_OTYPER            PIN_OTYPE_PUSHPULL(GPIOA_PWM1_3)
@@ -103,6 +46,8 @@
 #define VAL_GPIOA_AFRL              GPIOA_AFRL_DEFAULT
 #define VAL_GPIOA_AFRH              PIN_AFIO_AF(GPIOA_PWM1_3, 2u)
 
+// GPIOB
+// ---------
 #define VAL_GPIOB_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOB_OTYPER            GPIOx_OTYPER_DEFAULT
 #define VAL_GPIOB_OSPEEDR           GPIOx_OSPEEDR_DEFAULT
@@ -111,6 +56,8 @@
 #define VAL_GPIOB_AFRL              GPIOx_AFRL_DEFAULT
 #define VAL_GPIOB_AFRH              GPIOx_AFRH_DEFAULT
 
+// GPIOC
+// ---------
 #define VAL_GPIOC_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOC_OTYPER            GPIOx_OTYPER_DEFAULT
 #define VAL_GPIOC_OSPEEDR           GPIOx_OSPEEDR_DEFAULT
@@ -119,6 +66,8 @@
 #define VAL_GPIOC_AFRL              GPIOx_AFRL_DEFAULT
 #define VAL_GPIOC_AFRH              GPIOx_AFRH_DEFAULT
 
+// GPIOD
+// ---------
 #define VAL_GPIOD_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOD_OTYPER            GPIOx_OTYPER_DEFAULT
 #define VAL_GPIOD_OSPEEDR           GPIOx_OSPEEDR_DEFAULT
@@ -127,6 +76,8 @@
 #define VAL_GPIOD_AFRL              GPIOx_AFRL_DEFAULT
 #define VAL_GPIOD_AFRH              GPIOx_AFRH_DEFAULT
 
+// GPIOE
+// ---------
 #define VAL_GPIOE_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOE_OTYPER            GPIOx_OTYPER_DEFAULT
 #define VAL_GPIOE_OSPEEDR           GPIOx_OSPEEDR_DEFAULT
@@ -135,6 +86,8 @@
 #define VAL_GPIOE_AFRL              GPIOx_AFRL_DEFAULT
 #define VAL_GPIOE_AFRH              GPIOx_AFRH_DEFAULT
 
+// GPIOF
+// ---------
 #define VAL_GPIOF_MODER             GPIOx_MODER_DEFAULT
 #define VAL_GPIOF_OTYPER            GPIOx_OTYPER_DEFAULT
 #define VAL_GPIOF_OSPEEDR           GPIOx_OSPEEDR_DEFAULT

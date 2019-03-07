@@ -17,7 +17,7 @@ THD_FUNCTION(poll_switches, arg) {
 
         down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH);
         if (down0 ^ down){
-            limit_switch(LOWER_LIMIT_SWITCH); // debugger
+            limit_switch(LOWER_LIMIT_SWITCH); //// debugger
         }
         down0 = down; // debugger
 
@@ -49,7 +49,7 @@ void init_io(void){
 
     // backward button
     palSetPadMode(GPIOA, DOWNWARD_BUTTON, PAL_MODE_INPUT);
-    palEnablePadEvent(GPIOA, DOWNWARD_BUTTON, PAL_EVENT_MODE_BOTH_EDGES);
+    ////palEnablePadEvent(GPIOA, DOWNWARD_BUTTON, PAL_EVENT_MODE_BOTH_EDGES);
     palSetPadCallback(GPIOA, DOWNWARD_BUTTON, button_callback, DOWNWARD_BUTTON);
 
     // upper limit switch (uses polling)

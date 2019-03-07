@@ -4,7 +4,8 @@
 /*
  * MCU type
  */
-#define STM32F103xB
+#define STM32F103x8
+#define STM32F103xB // temporary, see the PR
 
 // See pal_default_config in board.c in order to see what variables to set
 
@@ -28,6 +29,9 @@
  *
  * Please refer to the STM32 Reference Manual for details.
  */
+
+#include "stm32f103_init_io.h"
+
 #define CR_DEFAULT    0x44444444
 #define ODR_DEFAULT    0x00000000
 

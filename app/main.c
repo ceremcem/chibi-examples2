@@ -13,14 +13,15 @@ int main(void)
 
     start_motion();
 
-    pwmStart(&pulse_PWM_dr, &pwmcfg); 
-    pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 5000));
-
+    pwmStart(&pulse_PWM_dr, &pwmcfg);
+    pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 4000));
 
 	/*Main task loop*/
 	while(!0)
 	{
         chThdSleepMilliseconds(1000);
+        //uint8_t down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH); // debugger
+        //palWritePad(GPIOA, DIR_OUT, down);
 	}
 }
 

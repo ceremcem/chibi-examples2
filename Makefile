@@ -1,11 +1,19 @@
 ##############################################################################
+# Include Aktos Electronics settings
+
+include aea.mk
+
+# Aktos Electronics settings
+##############################################################################
+
+##############################################################################
 # Build global options
 # NOTE: Can be overridden externally.
 #
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O$(OPTIMIZATION_LEVEL) -ggdb -fomit-frame-pointer -falign-functions=16
 endif
 
 # C specific options here (added to USE_OPT).
@@ -81,8 +89,6 @@ endif
 ##############################################################################
 # Project, sources and paths
 #
-
-include aea.mk
 
 # Licensing files.
 include $(CHIBIOS)/os/license/license.mk

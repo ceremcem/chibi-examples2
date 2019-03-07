@@ -33,7 +33,7 @@
 
 /*============= OVERWRITES ================== */
 #define CH_CFG_USE_TM                       FALSE
-#define CH_CFG_ST_FREQUENCY                 100000
+//#define CH_CFG_ST_FREQUENCY                 100000
 /*========== END OF OVERWRITES ============== */
 
 

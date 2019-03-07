@@ -34,12 +34,26 @@ GCC_VERSION := $(shell gcc --version | grep ^gcc | sed 's/^.* //g')
 
 DEPS_DB := $(CURDIR)/dependencies.txt
 
+BUILD_TARGET := $(shell [ -e Target ] && cat Target | grep "^[^\#\;]")
+ifeq ("$(BUILD_TARGET)","Debug")
+	OPTIMIZATION_LEVEL = 0
+else
+	OPTIMIZATION_LEVEL = 2
+endif
+
 PRE_MAKE_ALL_RULE_HOOK:
 	@true > $(DEPS_DB)
 	@echo "ChibiOS/$(CHIBIOS_BRANCH) $(CHIBIOS_COMMIT)" >> $(DEPS_DB)
 	@echo "GCC $(GCC_VERSION)" >> $(DEPS_DB)
+	@if [ ! -f Target ]; then echo "Release" > Target; fi
 
 POST_MAKE_ALL_RULE_HOOK:
+	@if [ $(OPTIMIZATION_LEVEL) -lt 2 ]; then \
+		echo "------------------------------------------------------"; \
+		echo -n "WARNING: Optimization level is: $(OPTIMIZATION_LEVEL)"; \
+		echo " [Target: Debug]"; \
+		echo "------------------------------------------------------"; \
+	fi
 
 CLEAN_RULE_HOOK:
 	@echo "Cleanup hook..."
