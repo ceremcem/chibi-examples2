@@ -1,25 +1,23 @@
 Hardware:
 ---------
-Use `cfg-f030x4` or `cfg-f103x8` in `aea.mk` to select the hardware.
+Use `cfg-f030x4` or `cfg-f103x8` in `aea.mk` to select the target hardware.
 
 BOARD INFO:
 -----------
-Pinout: see cfg/board.c/h and io.h
+Pinout: see cfg-xx/board.c/h and app/io.h for pinouts
 
 
-GET
+Usage
 -----------
 
 ```
 git clone --recursive https://github.com/ceremcem/chibi-examples2
 cd chibi-examples2
+# either:
+make write # to flash only, or
+make start-debugging # to start debugging with GDB command line client.
+
+# TIP: in GDB prompt, use the "cheatsheet" command.
 ```
 
-Flashing and Debugging
----------------------
-Basic instructions:
-
-1. Flashing                    : `make write`
-2. Debugging                   : `make start-debugging`
-
-For further instructions, see mcu-debug/README.md
+For further instructions, see [mcu-debug/README.md](./mcu-debug/README.md).
