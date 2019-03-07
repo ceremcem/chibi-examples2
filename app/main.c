@@ -13,9 +13,6 @@ int main(void)
 
     start_motion();
 
-    pwmStart(&pulse_PWM_dr, &pwmcfg);
-    pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, 4000));
-
 	/*Main task loop*/
 	while(!0)
 	{
