@@ -6,8 +6,8 @@ PROJECT = ch
 
 # Imported source files and paths.
 CHIBIOS  := $(HOME)/ChibiOS
-# use cfg-f030x4 or cfg-f103x8
-CONFDIR  := ./cfg-f030x4
+# Use any folder name inside ./hw/ folder:
+CONFDIR  := ./hw/f030x4-custom-breakout
 BUILDDIR := ./build
 DEPDIR   := ./.dep
 
