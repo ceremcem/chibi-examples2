@@ -39,7 +39,6 @@ int main(void) {
   uint8_t period = pwmcfg.period;
   pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
-  uint8_t state = 1;
   while (true) {
     chThdSleepMilliseconds(10); // debugger
     if (period > 40){
@@ -49,8 +48,7 @@ int main(void) {
     pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
     // test the output
-    state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT); // debugger
-    //state ^= 1; // toggle
+    uint8_t state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT); // debugger
     palWritePad(GPIOA, GPIOA_TEST_OUTPUT, state);
   }
 }
