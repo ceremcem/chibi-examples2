@@ -49,7 +49,7 @@ void init_io(void){
 
     // backward button
     palSetPadMode(GPIOA, DOWNWARD_BUTTON, PAL_MODE_INPUT);
-    ////palEnablePadEvent(GPIOA, DOWNWARD_BUTTON, PAL_EVENT_MODE_BOTH_EDGES);
+    palEnablePadEvent(GPIOA, DOWNWARD_BUTTON, PAL_EVENT_MODE_BOTH_EDGES);
     palSetPadCallback(GPIOA, DOWNWARD_BUTTON, button_callback, DOWNWARD_BUTTON);
 
     // upper limit switch (uses polling)
