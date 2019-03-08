@@ -8,8 +8,8 @@ extern PWMConfig pwmcfg;
 THD_WORKING_AREA(wa_ramp, 128);
 THD_FUNCTION(ramp, arg) {
     (void) arg;
-    const int period_offset = pwmcfg.period;
-    int offset = period_offset;
+    const int default_period = pwmcfg.period;
+    int period = default_period;
     bool motion_enable0 = false;
     uint16_t percentage = 5000; // unit: 1/10_000
 
@@ -17,16 +17,16 @@ THD_FUNCTION(ramp, arg) {
     while(!chThdShouldTerminateX()){
         if (!motion_enable0 && motion_enable){
             // rising edge, start ramp
-            offset = period_offset;
+            period = default_period;
             pwmStart(&pulse_PWM_dr, &pwmcfg);
             pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
         }
         motion_enable0 = motion_enable;
         if (motion_enable){
-            if (offset > 30){
-                offset--;
+            if (period > 30){
+                period--;
             }
-            pwmChangePeriod(&pulse_PWM_dr, offset); // period
+            pwmChangePeriod(&pulse_PWM_dr, period); // period
             pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
             chThdSleepMilliseconds(10);
