@@ -13,14 +13,12 @@
  * IO pins assignments.
  */
 /* GPIOA */
-#define DQ0                     0
-#define DQ1                     1
-#define DI0                     2
-#define DI1                     3
-#define DI2                     4
-#define DI3                     5
-
-#define pulse_PWMD  PWMD3
+#define GPIOA_PWM1_3        10u
+#define GPIOA_0             0u
+#define GPIOA_1             1u
+#define GPIOA_2             2u
+#define GPIOA_3             3u
+#define GPIOA_4             4u
 
 /*
  * I/O Assignment
@@ -31,30 +29,6 @@
  */
 
 #include "stm32f103_init_io.h"
-
-#define CR_DEFAULT    0x44444444
-#define ODR_DEFAULT    0x00000000
-
-#define GPIO_MODE_INPUT             0b00
-#define GPIO_MODE_OUTPUT_10MHZ      0b01
-#define GPIO_MODE_OUTPUT_2MHZ       0b10
-#define GPIO_MODE_OUTPUT_50MHZ      0b11
-
-// valid only GPIO_MODE is 0
-#define GPIO_CNF_ANALOG             (0b00 << 2)
-#define GPIO_CNF_INPUT_FLOATING     (0b01 << 2)
-#define GPIO_CNF_INPUT_PUPD         (0b10 << 2)
-// valid only GPIO_MODE > 0
-#define GPIO_CNF_OUTPUT_PP          (0b00 << 2)
-#define GPIO_CNF_OUTPUT_OD          (0b01 << 2)
-#define GPIO_CNF_AF_PP              (0b10 << 2)
-#define GPIO_CNF_AF_OD              (0b11 << 2)
-
-// GPIO configurations for device peripherals
-#define PWM_CONF_50MHZ              (GPIO_CNF_AF_PP | GPIO_MODE_OUTPUT_50MHZ)
-
-#define PIN_NUM(x)                  (4 * x % 8)     // 4 bits per pin config
-
 /*
  * Mass settings
  */

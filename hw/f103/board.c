@@ -16,14 +16,6 @@
 
 #include "hal.h"
 
-typedef struct {
-        GPIO_TypeDef * port;
-        uint8_t pin_number;
-} GPIO_PIN;
-
-// GPIOB
-GPIO_PIN PWM0_pin={GPIOB, 1};
-
 /**
  * @brief   PAL setup.
  * @details Digital I/O ports static configuration as defined in @p board.h.
@@ -56,26 +48,6 @@ void set_cr(GPIO_TypeDef * GPIOx, uint8_t pin_number, uint8_t mode){
     }
 }
 
-void set_pin_mode(GPIO_PIN* pin, uint8_t mode){
-    set_cr(pin->port, pin->pin_number, mode);
-}
-
-void hw_init_io(void){
-    set_pin_mode(&PWM0_pin, PWM_CONF_50MHZ);
-}
-
-PWMConfig pwmcfg = {
-	frequency: 2000000,                   // PWM clock frequency
-	period: 100,                          // PWM resolution (overall PWM signal frequency: PCF/PR)
-	callback: NULL,                       // No callback
-	channels: {
-		{PWM_OUTPUT_DISABLED, NULL},      // 0
-		{PWM_OUTPUT_DISABLED, NULL},      // 1
-		{PWM_OUTPUT_DISABLED, NULL},      // 2
-		{PWM_OUTPUT_ACTIVE_HIGH, NULL}    // 3
-	}
-};
-
 /*
  * Early initialization code.
  * This initialization must be performed just after stack setup and before
@@ -89,5 +61,5 @@ void __early_init(void) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-    hw_init_io();
+    set_cr(GPIOA, GPIOA_PWM1_3, PWM_CONF_50MHZ);
 }
