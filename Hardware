@@ -1,5 +1,1 @@
-# STM32F030 breakout board
 hw/f030x4-custom-breakout
-
-# STM32F103 Bluepill development board
-#hw/f103x8-custom-breakout
