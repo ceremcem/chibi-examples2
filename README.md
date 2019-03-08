@@ -1,6 +1,6 @@
 Hardware:
 ---------
-Use `cfg-f030x4` or `cfg-f103x8` in `aea.mk` to select the target hardware.
+See [./Hardware](./Hardware) for target hardware.
 
 BOARD INFO:
 -----------
