@@ -1,1 +1,1 @@
-/home/ceremcem/sync/dev/chibi-examples2/chibi-project/Project.mk
+chibi-project/Project.mk
