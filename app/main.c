@@ -17,7 +17,7 @@ int main(void)
 	while(!0)
 	{
         chThdSleepMilliseconds(1000);
-        //uint8_t down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH); // debugger
+        //uint8_t down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH); //// debugger
         //palWritePad(GPIOA, DIR_OUT, down);
 	}
 }
@@ -81,7 +81,7 @@ void DOWNWARD_button(bool pressed){
 }
 
 void button_callback(uint8_t pad){
-    bool state = ! palReadPad(GPIOA, pad); // debugger
+    bool state = ! palReadPad(GPIOA, pad); 
     if (pad == UPWARD_BUTTON){
         UPWARD_button(state);
     } else {

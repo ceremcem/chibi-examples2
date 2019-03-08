@@ -19,7 +19,7 @@ THD_FUNCTION(poll_switches, arg) {
         if (down0 ^ down){
             limit_switch(LOWER_LIMIT_SWITCH); //// debugger
         }
-        down0 = down; // debugger
+        down0 = down; 
 
         chThdSleepMilliseconds(1000);
     }
