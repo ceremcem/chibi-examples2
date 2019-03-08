@@ -40,7 +40,7 @@ int main(void) {
   pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
   while (true) {
-    chThdSleepMilliseconds(10); // debugger
+    chThdSleepMilliseconds(1000); //// debugger
     if (period > 40){
         period -= 30;
     }
@@ -48,7 +48,12 @@ int main(void) {
     pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
     // test the output
-    uint8_t state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT); // debugger
+    uint8_t state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT); //// debugger
     palWritePad(GPIOA, GPIOA_TEST_OUTPUT, state);
   }
+}
+
+void button_callback(void){
+    uint8_t state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT_2); // debugger
+    palWritePad(GPIOA, GPIOA_TEST_OUTPUT_2, state);
 }
