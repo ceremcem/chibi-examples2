@@ -33,6 +33,12 @@
 
 #include "mcuconf.h"
 
+/* Overwrites */
+#define PAL_USE_CALLBACKS                   TRUE
+#define HAL_USE_SERIAL                      TRUE
+#define HAL_USE_PWM                         TRUE
+/* End of overwrites */
+
 /**
  * @brief   Enables the PAL subsystem.
  */
@@ -149,7 +155,7 @@
  * @brief   Enables the SERIAL subsystem.
  */
 #if !defined(HAL_USE_SERIAL) || defined(__DOXYGEN__)
-#define HAL_USE_SERIAL                      TRUE
+#define HAL_USE_SERIAL                      FALSE
 #endif
 
 /**
@@ -196,7 +202,7 @@
  * @note    Disabling this option saves both code and data space.
  */
 #if !defined(PAL_USE_CALLBACKS) || defined(__DOXYGEN__)
-#define PAL_USE_CALLBACKS                   TRUE
+#define PAL_USE_CALLBACKS                   FALSE
 #endif
 
 /**

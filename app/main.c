@@ -4,19 +4,21 @@
 thread_t * motion_t;
 bool motion_enable = false;
 
-
 int main(void)
 {
 	halInit();
 	chSysInit();
 
     init_io();
+
     start_motion();
 
 	/*Main task loop*/
 	while(!0)
 	{
-        chThdSleepMilliseconds(1400);
+        chThdSleepMilliseconds(1000);
+        //uint8_t down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH); //// debugger
+        //palWritePad(GPIOA, DIR_OUT, down);
 	}
 }
 
@@ -28,7 +30,7 @@ void stop_motion(){
 
 void start_motion(){
     motion_t = chThdCreateStatic(wa_ramp, sizeof(wa_ramp),
-        NORMALPRIO + 1, ramp, NULL);
+        HIGHPRIO, ramp, NULL);
 }
 
 void set_dir(bool dir){
@@ -79,7 +81,7 @@ void DOWNWARD_button(bool pressed){
 }
 
 void button_callback(uint8_t pad){
-    bool state = ! palReadPad(GPIOA, pad);
+    bool state = ! palReadPad(GPIOA, pad); 
     if (pad == UPWARD_BUTTON){
         UPWARD_button(state);
     } else {

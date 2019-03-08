@@ -1,1 +1,2 @@
-ChibiOS/stable_18.2.x 903263a2c7467204f84df164efe0a1ca0028bbde
+ChibiOS/aea_stable_18.2.x 6bc2bd8fc3871dea3c6410587b9ee4966096e15a
+GCC 8.2.0
