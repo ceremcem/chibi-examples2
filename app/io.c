@@ -1,6 +1,6 @@
 #include "hal.h"
 #include "io.h"
-
+/*
 // actual PWM frequency is: pwmcfg.frequency / pwmcfg.period
 PWMConfig pwmcfg = {
 	frequency: 200000,                   // PWM clock frequency
@@ -13,6 +13,7 @@ PWMConfig pwmcfg = {
 		{PWM_OUTPUT_DISABLED, NULL}       // CH4
 	}
 };
+*/
 
 void init_io(void){
     palSetPadMode(GPIOA, GPIOA_DIR_OUT, PAL_MODE_OUTPUT_PUSHPULL);

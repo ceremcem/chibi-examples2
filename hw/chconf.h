@@ -32,8 +32,14 @@
 #define _CHIBIOS_RT_CONF_VER_5_1_
 
 /*============= OVERWRITES ================== */
-#define CH_CFG_USE_TM                       FALSE
-//#define CH_CFG_ST_FREQUENCY                 100000
+#define CH_CFG_USE_TM                       FALSE // required for STMF030
+
+#define USE_TICKLESS_MODE                TRUE
+#define CH_CFG_TIME_QUANTUM                 0 // 20
+#define CH_CFG_ST_TIMEDELTA                 2 // 0
+
+
+#define CH_CFG_ST_FREQUENCY                 100000
 /*========== END OF OVERWRITES ============== */
 
 
@@ -696,6 +702,19 @@
 /*===========================================================================*/
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
+
+#if USE_TICKLESS_MODE
+#if CH_CFG_ST_TIMEDELTA == 0
+#error CH_CFG_ST_TIMEDELTA must be greater than zero in Tickless Mode.
+#endif
+#if defined(CH_CFG_TIME_QUANTUM) && CH_CFG_TIME_QUANTUM > 0
+#error CH_CFG_TIME_QUANTUM must be 0 in Tickless Mode.
+#endif
+#else
+#if CH_CFG_ST_TIMEDELTA != 0
+#error CH_CFG_ST_TIMEDELTA must be zero when Tickless Mode is disabled.
+#endif
+#endif
 
 #endif  /* CHCONF_H */
 

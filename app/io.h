@@ -10,7 +10,9 @@
 
 // TIM1_CH3 -> PA10 (@F030), Pin setup is handled in board.c/h
 //          -> PA10 (@F103)
+/*
 #define pulse_PWM_dr      PWMD1        // TIM1
 #define pulse_PWM_ch      TIMER_CH3    // DON'T forget to update pwmcfg.channels
+*/
 
 extern void button_callback(void);

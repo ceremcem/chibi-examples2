@@ -4,4 +4,4 @@
 
 // io.c
 extern void init_io(void);
-extern PWMConfig pwmcfg;
+//extern PWMConfig pwmcfg;
