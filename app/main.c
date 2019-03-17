@@ -11,10 +11,9 @@ static THD_FUNCTION(Thread1, arg) {
   uint8_t half_period = 15; //ms
   while (true) {
     palSetPad(GPIOA, GPIOA_DIR_OUT); // debugger
-    chThdYield();
     chThdSleepMilliseconds(half_period);
     palClearPad(GPIOA, GPIOA_DIR_OUT);
-    chThdSleepMilliseconds(half_period);
+    //chThdSleepMilliseconds(half_period);
   }
 }
 
@@ -41,7 +40,8 @@ int main(void) {
   //pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
   while (true) {
-    chThdSleepMilliseconds(1); // debugger
+    chThdYield(); // debugger
+    chThdSleepMicroseconds(1); //// debugger
     if (period > 40){
         period -= 30;
     }
