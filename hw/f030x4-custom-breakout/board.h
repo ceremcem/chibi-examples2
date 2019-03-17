@@ -36,11 +36,10 @@
  * PA10: PWM1.3 -> AF2 (RM/Table 12)
  */
 #define VAL_GPIOA_MODER             (GPIOA_MODER_DEFAULT \
-                                        | PIN_MODE_ALTERNATE(GPIOA_PWM1_3) \
-                                        )
-#define VAL_GPIOA_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOA_PWM1_3) \
-                                        )
-#define VAL_GPIOA_OSPEEDR           PIN_OSPEED_40M(GPIOA_PWM1_3)
+                                        | PIN_MODE_ALTERNATE(GPIOA_PWM1_3))
+#define VAL_GPIOA_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOA_PWM1_3))
+#define VAL_GPIOA_OSPEEDR           (GPIOA_OSPEEDR_DEFAULT \
+                                        | PIN_OSPEED_40M(GPIOA_PWM1_3))
 #define VAL_GPIOA_PUPDR             GPIOA_PUPDR_DEFAULT
 #define VAL_GPIOA_ODR               GPIOA_ODR_DEFAULT
 #define VAL_GPIOA_AFRL              GPIOA_AFRL_DEFAULT
