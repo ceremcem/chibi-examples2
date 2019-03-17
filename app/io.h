@@ -1,11 +1,12 @@
 #include "pwm_helpers.h"
 
-#define GPIOA_DIR_OUT           1
-#define GPIOA_TEST_OUTPUT       2
-#define GPIOA_TEST_OUTPUT_2     5
+#define GPIOA_DIR_OUT           0
 
-#define GPIOA_TEST_INPUT        3
-#define GPIOA_TEST_INPUT_2      4
+#define GPIOA_TEST_INPUT        2
+#define GPIOA_TEST_OUTPUT       1
+
+#define GPIOA_TEST_INPUT_2      3
+#define GPIOA_TEST_OUTPUT_2     5
 
 // TIM1_CH3 -> PA10 (@F030), Pin setup is handled in board.c/h
 //          -> PA10 (@F103)
