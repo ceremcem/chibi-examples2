@@ -32,6 +32,8 @@
 #define GPIOA_2             2
 #define GPIOA_3             3
 #define GPIOA_4             4
+#define GPIOA_5             5
+#define GPIOA_6             6
 
 #include "stm32f030_init_io.h"
 
