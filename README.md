@@ -20,4 +20,4 @@ make start-debugging # to start debugging with GDB command line client.
 # TIP: in GDB prompt, use the "cheatsheet" command.
 ```
 
-For further instructions, see [mcu-debug/README.md](./mcu-debug/README.md).
+For further debugging related instructions, see [mcu-debug/README.md](https://github.com/aktos-io/mcu-debug).
