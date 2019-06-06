@@ -1,4 +1,4 @@
-build/
+build*
 .dep/
 _breakpoints.txt
 

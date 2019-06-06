@@ -16,7 +16,7 @@ int main(void)
 	/*Main task loop*/
 	while(!0)
 	{
-        chThdSleepMilliseconds(1000);
+        chThdSleepMilliseconds(1000); // debugger
         //uint8_t down = palReadPad(GPIOA, LOWER_LIMIT_SWITCH); //// debugger
         //palWritePad(GPIOA, DIR_OUT, down);
 	}
