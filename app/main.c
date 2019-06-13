@@ -40,7 +40,7 @@ int main(void) {
   pwmEnableChannel(&pulse_PWM_dr, pulse_PWM_ch, PWM_PERCENTAGE_TO_WIDTH (&pulse_PWM_dr, percentage));
 
   while (true) {
-    chThdSleepMilliseconds(1000); // debugger
+    chThdSleepMilliseconds(1000); //// debugger
     if (period > 40){
         period -= 30;
     }
