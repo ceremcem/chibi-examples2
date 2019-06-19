@@ -31,14 +31,14 @@ int main(void) {
   // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
+
   spiStart(&SPID1, &test_spicfg);
-  spiSelect(&SPID1);
+  // refer to testhal/*/SPI example for multithread SPI configuration
 
   uint8_t txbuffer[2];
   uint8_t rxbuffer[2];
   uint8_t offset = 0;
   uint8_t num_zero = 48;
-  rxbuffer[1] = 0x33;
   
   txbuffer[0] = 65; // A
 
@@ -51,7 +51,7 @@ int main(void) {
     #else
       // will send: "A0", "01", "12", "23", ...
       spiExchange(&SPID1, 2, txbuffer, rxbuffer);
-      txbuffer[0] = rxbuffer[1];
+      txbuffer[0] = rxbuffer[1]; 
     #endif
     offset++;
     if (offset > 9u) {

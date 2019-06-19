@@ -50,13 +50,14 @@ For SPI1: PA(5,6,7) should be set to AF0
                                         )
 #define VAL_GPIOA_OTYPER            (GPIOA_OTYPER_DEFAULT \
                                         | PIN_OTYPE_PUSHPULL(GPIOA_SPI1_MOSI) \
+                                        | PIN_OTYPE_PUSHPULL(GPIOA_SPI1_MISO) /* HAS NO EFFECT */ \
                                         | PIN_OTYPE_PUSHPULL(GPIOA_SPI1_SCLK) \
                                         )
 #define VAL_GPIOA_OSPEEDR           (GPIOA_OSPEEDR_DEFAULT \
                                         | PIN_OSPEED_40M(GPIOA_SPI1_MOSI) \
+                                        | PIN_OSPEED_40M(GPIOA_SPI1_MISO) \
                                         )
-#define VAL_GPIOA_PUPDR             (GPIOA_PUPDR_DEFAULT \
-                                        | PIN_PUPDR_PULLDOWN(GPIOA_SPI1_MISO) \
+#define VAL_GPIOA_PUPDR             (GPIOA_PUPDR_DEFAULT  \
                                         )
 #define VAL_GPIOA_ODR               GPIOA_ODR_DEFAULT
 #define VAL_GPIOA_AFRL              (GPIOA_AFRL_DEFAULT \
