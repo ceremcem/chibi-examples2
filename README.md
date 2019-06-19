@@ -9,8 +9,11 @@ The application "basic" does:
 
 The application "spi-example" does:
 
-* Send `A0`, `A1`, ..., `A9` strings via SPI_MOSI pin
-* Receive ... 
+* In `MOSI_MISO_CONNECTED` (loopback) mode (see `app/spi-example/io.h`):
+    * Send `01`, `12`, ..., `90` strings via SPI_MOSI pin
+    * Receive `01`, `12`, ... `90` via SPI_MISO pin
+* Else
+    * Send `A0`, `A1`, ..., `A9` strings via SPI_MOSI pin
 
 
 # Hardware

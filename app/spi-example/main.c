@@ -45,14 +45,13 @@ int main(void) {
   while (true) {
     chThdSleepMilliseconds(1); //// debugger
     txbuffer[1] = num_zero + offset;
-    #if ! defined MOSI_MISO_CONNECTED
+    #if !defined MOSI_MISO_CONNECTED
       // will send: "A0", "A1", ...
-      spiSend(&SPID1, 2, &txbuffer);
+      spiSend(&SPID1, 2, txbuffer);
     #else
       // will send: "A0", "01", "12", "23", ...
-      spiExchange(&SPID1, 2, &txbuffer, &rxbuffer);
-
-      //txbuffer[0] = rxbuffer[1]; // debugger 
+      spiExchange(&SPID1, 2, txbuffer, rxbuffer);
+      txbuffer[0] = rxbuffer[1];
     #endif
     offset++;
     if (offset > 9u) {

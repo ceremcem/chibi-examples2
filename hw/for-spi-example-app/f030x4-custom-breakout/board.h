@@ -45,7 +45,7 @@ For SPI1: PA(5,6,7) should be set to AF0
 
 #define VAL_GPIOA_MODER             (GPIOA_MODER_DEFAULT \
                                         | PIN_MODE_ALTERNATE(GPIOA_SPI1_MOSI) \
-                                        | PIN_MODE_INPUT(GPIOA_SPI1_MISO) \
+                                        | PIN_MODE_ALTERNATE(GPIOA_SPI1_MISO) \
                                         | PIN_MODE_ALTERNATE(GPIOA_SPI1_SCLK) \
                                         )
 #define VAL_GPIOA_OTYPER            (GPIOA_OTYPER_DEFAULT \
