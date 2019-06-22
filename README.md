@@ -9,7 +9,7 @@ The application "basic" does:
 
 The application "spi-example" does:
 
-* In `MOSI_MISO_CONNECTED` (loopback) mode (see `app/spi-example/io.h`):
+* If `MOSI` and `MISO` short circuited (loopback mode):
     * Send `01`, `12`, ..., `90` strings via SPI_MOSI pin
     * Receive `01`, `12`, ... `90` via SPI_MISO pin
 * Else

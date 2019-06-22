@@ -20,5 +20,3 @@ Using SPI1:
 
 
 */
-
-#define MOSI_MISO_CONNECTED TRUE

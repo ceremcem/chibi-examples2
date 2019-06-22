@@ -31,7 +31,6 @@ int main(void) {
   // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
-
   spiStart(&SPID1, &test_spicfg);
   // refer to testhal/*/SPI example for multithread SPI configuration
 
@@ -39,20 +38,13 @@ int main(void) {
   uint8_t rxbuffer[2];
   uint8_t offset = 0;
   uint8_t num_zero = 48;
-  
   txbuffer[0] = 65; // A
 
   while (true) {
-    chThdSleepMilliseconds(1); //// debugger
+    chThdSleepMilliseconds(1);
     txbuffer[1] = num_zero + offset;
-    #if !defined MOSI_MISO_CONNECTED
-      // will send: "A0", "A1", ...
-      spiSend(&SPID1, 2, txbuffer);
-    #else
-      // will send: "A0", "01", "12", "23", ...
-      spiExchange(&SPID1, 2, txbuffer, rxbuffer);
-      txbuffer[0] = rxbuffer[1]; 
-    #endif
+    spiExchange(&SPID1, 2, txbuffer, rxbuffer);
+    txbuffer[0] = rxbuffer[1]; 
     offset++;
     if (offset > 9u) {
       offset = 0;  
