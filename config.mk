@@ -1,4 +1,6 @@
-APP_NAME	:= spi-example
+#APP_NAME	:= basic
+#APP_NAME	:= spi-example
+APP_NAME	:= uart
 
 Target      := Debug
 App 		:= ./app/$(APP_NAME)
