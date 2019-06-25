@@ -53,7 +53,8 @@ int main(void) {
   }
 }
 
-void button_callback(void){
+void button_callback(void * arg){
+    (void) arg;
     uint8_t state = ! palReadPad(GPIOA, GPIOA_TEST_INPUT_2); // debugger
     palWritePad(GPIOA, GPIOA_TEST_OUTPUT_2, state);
 }

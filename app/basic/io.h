@@ -12,4 +12,4 @@
 #define pulse_PWM_dr      PWMD1        // TIM1
 #define pulse_PWM_ch      TIMER_CH3    // DON'T forget to update pwmcfg.channels
 
-extern void button_callback(void);
+extern void button_callback(void*);
