@@ -13,3 +13,7 @@ This application does:
 1. Logic Analyzer Connection 
     1. Create an analyzer 
     2. Set "Enable" pin as "None" in analyzer settings
+
+# Pinout
+
+Refer to `$HARDWARE/board.{h,c}` and `io.{h,c}` for pinout settings.
