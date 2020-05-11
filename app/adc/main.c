@@ -30,6 +30,7 @@ int main(void) {
   halInit();
   chSysInit();
   init_io();
+  adcStart(&ADCD1, &adccfg);
 
   // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
