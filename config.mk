@@ -1,4 +1,5 @@
-APP_NAME	:= basic
+APP_NAME	:= adc
+#APP_NAME	:= basic
 #APP_NAME	:= spi-example
 #APP_NAME	:= uart
 
