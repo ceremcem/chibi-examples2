@@ -1,4 +1,3 @@
-#include "pwm_helpers.h"
-
-#define GPIOA_LED_OUT           0
+#define GPIOA_LED_OUT         PA0_DOUT
+#define GPIOA_ADC_IN         PA1_ADCIN
 

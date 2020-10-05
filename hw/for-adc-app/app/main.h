@@ -26,5 +26,5 @@ static const ADCConversionGroup adcgrpcfg1 = {
     tr: ADC_TR(0, 0),                                       
     
     smpr : ADC_SMPR_SMP_13P5,
-    chselr: ADC_CHSELR_CHSEL6
+    chselr: ADC_CHSELR_CHSEL1
 };

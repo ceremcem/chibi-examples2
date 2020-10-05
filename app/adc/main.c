@@ -27,10 +27,13 @@ int main(void) {
    * - Kernel initialization, the main() function becomes a thread and the
    *   RTOS is active.
    */
-  halInit();
-  chSysInit();
-  init_io();
-  adcStart(&ADCD1, &adccfg);
+    halInit();
+    chSysInit();
+    init_io();
+    adcStart(&ADCD1, NULL);
+    
+    //adcStartConversion(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);
+    // ---------------- APP CODE STARTS HERE -------------------------
 
   // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
@@ -42,4 +45,13 @@ int main(void) {
     chThdSleepMilliseconds(100); // debugger
 
   }
+}
+
+void adcReadCallback1(ADCDriver *adcp, adcsample_t *buffer, size_t n)
+{
+    (void) adcp;
+    (void) n;
+    for (uint8_t i = 0; i < ADC_CH_NUM; i++){
+        // do something with buffer[i]
+    }
 }
