@@ -11,7 +11,7 @@ static THD_FUNCTION(Thread1, arg) {
   (void)arg;
   chRegSetThreadName("blinker");
   while (true) {
-    palSetPad(GPIOA, GPIOA_LED_OUT); // debugger 
+    palSetPad(GPIOA, GPIOA_LED_OUT); //// debugger 
     chThdSleepMilliseconds(half_period);
     palClearPad(GPIOA, GPIOA_LED_OUT);
     chThdSleepMilliseconds(half_period);
@@ -32,7 +32,8 @@ int main(void) {
     init_io();
     adcStart(&ADCD1, NULL);
     
-    //adcStartConversion(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);
+    adcStartConversion(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);
+
     // ---------------- APP CODE STARTS HERE -------------------------
 
   // start the blinker thread
@@ -42,7 +43,9 @@ int main(void) {
     if (half_period > 100){
         half_period -= 10;
     }
-    chThdSleepMilliseconds(100); // debugger
+    chThdSleepMilliseconds(100); 
+        adcStartConversion(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);
+
 
   }
 }
@@ -53,5 +56,6 @@ void adcReadCallback1(ADCDriver *adcp, adcsample_t *buffer, size_t n)
     (void) n;
     for (uint8_t i = 0; i < ADC_CH_NUM; i++){
         // do something with buffer[i]
+      buffer[i]; // debugger 
     }
 }
