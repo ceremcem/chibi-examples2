@@ -20,4 +20,4 @@ Hardware    := ./hw/for-adc-app/STM32F030x4
 
 Target		:= Debug
 GCC_Path	:= $(HOME)/gcc/gcc-arm-none-eabi-5_3-2016q1/bin
-GDB_Addr	:= 192.168.56.103:4242
+#GDB_Addr	:= 192.168.56.103:4242
