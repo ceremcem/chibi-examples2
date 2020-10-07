@@ -1,6 +1,6 @@
 build/
 .dep/
-_breakpoints.txt
+breakpoints.txt
 ChibiOS
 
 core

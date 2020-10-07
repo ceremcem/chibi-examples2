@@ -15,7 +15,7 @@ static adcsample_t samples_buf1[ADC_BUF_DEPTH * ADC_CH_NUM];
 // See os/hal/ports/STM32/LLD/ADCv1/hal_adc_lld.h
 // for available ADCConversionGroup fields.
 static const ADCConversionGroup adcgrpcfg1 = {
-    circular : FALSE,
+    circular : TRUE,
     num_channels : ADC_CH_NUM,
     end_cb : adcReadCallback1,
     error_cb : NULL,
@@ -25,6 +25,6 @@ static const ADCConversionGroup adcgrpcfg1 = {
     // Treshold Register 
     tr: ADC_TR(0, 0),                                       
     
-    smpr : ADC_SMPR_SMP_28P5,
+    smpr : ADC_SMPR_SMP_13P5,
     chselr: ADC_CHSELR_CHSEL1
 };
