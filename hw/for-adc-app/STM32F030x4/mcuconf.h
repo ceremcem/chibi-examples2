@@ -79,12 +79,16 @@
 /*
  * GPT driver system settings.
  */
-#define STM32_GPT_USE_TIM1                  FALSE
-#define STM32_GPT_USE_TIM3                  FALSE
-#define STM32_GPT_USE_TIM14                 FALSE
+
+#define STM32_GPT_USE_TIM1                  TRUE
 #define STM32_GPT_TIM1_IRQ_PRIORITY         2
+
+#define STM32_GPT_USE_TIM3                  FALSE
 #define STM32_GPT_TIM3_IRQ_PRIORITY         2
-#define STM32_GPT_TIM14_IRQ_PRIORITY        2
+
+#define STM32_GPT_USE_TIM14                  FALSE
+#define STM32_GPT_TIM14_IRQ_PRIORITY         2
+
 
 /*
  * I2C driver system settings.

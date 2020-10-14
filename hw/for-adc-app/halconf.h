@@ -36,6 +36,7 @@
 /* Overwrites */
 #define PAL_USE_CALLBACKS                   TRUE
 #define HAL_USE_ADC              TRUE
+#define HAL_USE_GPT              TRUE
 /* End of overwrites */
 
 /**

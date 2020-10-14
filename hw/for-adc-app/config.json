@@ -19,8 +19,9 @@
         "type": "adcIn"
       },
       "config": {
-        "mode": "continuous",
-        "period": 0
+        "conversion": "onDemand",
+        "poll": "periodic",
+        "period": 100
       }
     },
     "19": {

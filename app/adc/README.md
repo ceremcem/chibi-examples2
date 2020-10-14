@@ -8,3 +8,7 @@ This application does:
 # Pinout
 
 Refer to `$HARDWARE/board.{h,c}` and `io.{h,c}` for pinout settings.
+
+# Behavior 
+
+Led blinks fast or slow regarding to analog input's value.

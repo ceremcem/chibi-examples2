@@ -10,9 +10,9 @@ static THD_FUNCTION(Thread1, arg) {
   chRegSetThreadName("blinker");
   while (true) {
     palSetPad(GPIOA, GPIOA_LED_OUT); //// debugger 
-    chThdSleepMilliseconds(half_period);
+    chThdSleepMilliseconds(half_period - samples_buf1[0]/9);
     palClearPad(GPIOA, GPIOA_LED_OUT);
-    chThdSleepMilliseconds(half_period);
+    chThdSleepMilliseconds(half_period - samples_buf1[0]/9);
   }
 }
 
@@ -28,18 +28,18 @@ int main(void) {
   chSysInit();
   init_io();
   adcStart(&ADCD1, NULL);
-    
-  adcStartConversion(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);
+
+  gptStart(&GPTD1, &gptCfg1);
+  gptStartContinuous(&GPTD1, 10000);
+  // adcStartConversionI is fired within the gptCallback1 function.
+
   // ---------------- APP CODE STARTS HERE -------------------------
 
   // start the blinker thread
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, Thread1, NULL);
 
   while (true) {
-    if (half_period > 100){
-      half_period -= 10;
-    }
-    chThdSleepMilliseconds(100); //// debugger: print half_period
+    chThdSleepMilliseconds(100); 
   }
 }
 
@@ -48,6 +48,13 @@ void adcReadCallback1(ADCDriver *adcp, adcsample_t *buffer, size_t n)
   (void) adcp;
   (void) n;
   for (uint8_t i = 0; i < ADC_CH_NUM; i++){
-    buffer[i]; // debugger: printf "Analog value: %i\n", buffer[0]
+    buffer[i]; //// debugger: printf "Analog value: %i\n", buffer[0]
   }
+}
+
+static void gptCallback1(GPTDriver *gptp)
+{
+  (void) gptp;
+  // Note: Use only I-Class functions
+  adcStartConversionI(&ADCD1, &adcgrpcfg1, samples_buf1, ADC_BUF_DEPTH);  
 }
