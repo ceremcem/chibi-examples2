@@ -1,10 +1,23 @@
-APP_NAME	:= basic
-#APP_NAME	:= spi-example
-#APP_NAME	:= uart
+# ADC example
+# -----------
+App	        := ./app/adc
+Hardware    := ./hw/for-adc-app/STM32F030x4
 
-Target      := Debug
-App 		:= ./app/$(APP_NAME)
-Hardware    := ./hw/for-$(APP_NAME)-app/f030x4-custom-breakout
-#GCC_Path    := $(HOME)/gcc/gcc-arm-none-eabi-5_3-2016q1/bin
+# Basic example
+# -----------
+#App 		:= ./app/basic
+#Hardware	:= ./hw/for-basic-app/f030x4-custom-breakout
 
-#GDB_Addr    := 192.168.56.103:4242
+# SPI example
+# -----------
+#App 		:= ./app/spi-example
+#Hardware	:= ./hw/for-spi-example-app/f030x4-custom-breakout
+
+# Uart example
+# -----------
+#App 		:= ./app/uart
+#Hardware	:= ./hw/for-uart-app/f030x4-custom-breakout
+
+Target		:= Debug
+GCC_Path	:= $(HOME)/gcc/gcc-arm-none-eabi-5_3-2016q1/bin
+#GDB_Addr	:= 192.168.56.103:4242

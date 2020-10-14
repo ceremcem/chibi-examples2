@@ -1,8 +1,10 @@
 build/
 .dep/
-_breakpoints.txt
+breakpoints.txt
+ChibiOS
 
 core
 *.gch
 
-chibios/doc
+# temporary
+doc
