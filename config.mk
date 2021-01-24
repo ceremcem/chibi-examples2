@@ -18,6 +18,11 @@ Hardware    := ./hw/for-adc-app/STM32F030x4
 #App 		:= ./app/uart
 #Hardware	:= ./hw/for-uart-app/f030x4-custom-breakout
 
-Target		:= Debug
-GCC_Path	:= $(HOME)/gcc/gcc-arm-none-eabi-5_3-2016q1/bin
-#GDB_Addr	:= 192.168.56.103:4242
+Target			:= Debug
+ChibiOS_Path 	:= $(HOME)/embedded/ChibiOS/ChibiOS
+GCC_PATH		:= $(HOME)/embedded/gcc/gcc-arm-none-eabi-5_3-2016q1/bin
+
+FLASHER				:= openocd
+#GDB_ADDR			:= 192.168.56.103:4242
+OPENOCD_INTERFACE 	:= stlink-v2.cfg
+OPENOCD_TARGET 		:= stm32f0x.cfg
